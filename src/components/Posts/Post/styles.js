@@ -41,9 +41,52 @@ export default makeStyles((theme)=> ({
     ,
     post__image: {
         display: 'flex',
-        flexDirection:'column',
-        
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+       
+       position: 'relative',
+       background: 'whitesmoke',
     }, 
+
+    previousImage: {
+        position: 'absolute',
+        cursor: 'pointer',
+        top: '45%', 
+        left: '0',
+        padding: '5px',
+        
+    },
+    nextImage: {
+        position: 'absolute',
+        cursor: 'pointer',
+        top: '45%', 
+        right: '0',
+        padding: '5px',
+        
+    },
+    icon: {
+        
+        color: 'black', 
+        opacity: '0.7'
+    },
+    
+    haveImage: {
+      
+        flex: '0.7',
+        width: '90%',
+    },
+    fileOther: {
+        textDecoration: 'none',
+        color: 'black',
+        margin: '5px',
+    },
+    file: {
+        backgroundColor: '#ADDCFF',
+        textAlign: 'center',
+        borderRadius: '10px',
+        padding: '2px',
+    },
     post__options: {
         borderTop: '1px solid lightgray',
         display: 'flex',
@@ -66,5 +109,6 @@ export default makeStyles((theme)=> ({
     comments: {
         marginTop: '5px',
         borderTop: '1px solid lightgray'
-    }
+    },
+    
 }))

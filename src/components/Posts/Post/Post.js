@@ -9,7 +9,8 @@ import moment from 'moment'
 import { useDispatch } from 'react-redux'
 import { deletePost, likePost } from '../../../actions/posts';
 import DeleteIcon from '@material-ui/icons/Delete';
-
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import Comment from './Comment/Comment'
 
 const Post = ({ post }) => {
@@ -19,6 +20,10 @@ const Post = ({ post }) => {
     const classes = useStyles()
     const dispatch = useDispatch()
     const user = JSON.parse(localStorage.getItem('profile'))
+    const [lengthImage, setLengthImage] = useState(0)
+    const [currentImage, setCurrentImage] = useState(0)
+
+    let arrayImage = []
     const handleDelete = async () => {
         try {
             setIsLoading(true)
@@ -26,6 +31,49 @@ const Post = ({ post }) => {
             setIsLoading(false)
         } catch (error) {
             console.log(error)
+        }
+    } 
+    
+    const ContentImage = () => {
+        
+        if (post.selectedFile.length > 0) {
+            arrayImage = post.selectedFile.filter(function(file) {
+                return file.type.includes("image");
+            })
+            setLengthImage(arrayImage.length)
+            if(arrayImage.length > 0)
+                return <img alt='' className={classes.haveImage} src={arrayImage[currentImage]?.base64} />
+        }
+        return false;
+    }
+    const ContentFile = () => {
+
+        if (post.selectedFile.length > 0) {
+            return <>
+                {post.selectedFile.map(file => {
+                    if (!file.type.includes("image")) {
+                        return <a download key={file.name} className={classes.fileOther} title={file.name} href={file.base64} download>
+                            <div key={file.name} className={classes.file}>{file.name}</div>
+                        </a>
+                    }
+                })}
+            </>
+        }
+        return false;
+    }
+
+    const changePrevImage = () => {
+        if(currentImage === 0 ){
+            setCurrentImage(arrayImage.length - 1)
+        }else{
+            setCurrentImage(currentImage - 1)
+        }
+    }
+    const changeNextImage = () => {
+        if(currentImage === arrayImage.length -1 ){
+            setCurrentImage(0)
+        }else{
+            setCurrentImage(currentImage + 1)
         }
     }
 
@@ -70,21 +118,39 @@ const Post = ({ post }) => {
                                     <p>{post.message}</p>
                                 </div>
 
-                                <div className={classes.post__image}>
-                                    {post.selectedFile && <img alt=' ' className={classes.haveImage} src={post.selectedFile} />}
-                                </div>
-                            </div>
-                            <div className={classes.post__options}>
-                                
-                                <div className={classes.post__option} onClick={handleLikePost}>
-                                    {isUpdate ? <CircularProgress />
-                                        : 
+                                <div className={classes.post__image} >
+                                    {post.selectedFile && <ContentImage />}
+                                    {lengthImage > 1 && 
                                         <>
-                                            <HaveLike />
-                                            <p style={{ marginLeft: '10px' }}>{post.likes.length} Thích</p>
+                                            <div onClick={changePrevImage} className={classes.previousImage}>
+                                            
+                                                <ArrowBackIosIcon className={classes.icon}/>
+                                            </div>
+                                            <div onClick={changeNextImage} className={classes.nextImage}>
+                                            
+                                                <ArrowForwardIosIcon className={classes.icon} />
+                                            </div>
                                         </>
                                     }
                                 </div>
+                                
+                                <div className={classes.post__file} style={{display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+                                    {post.selectedFile && <ContentFile />    }
+                                </div>
+                            </div>
+                            <div className={classes.post__options}>
+
+                                
+                                    {isUpdate ? <div className={classes.post__option}><CircularProgress /></div>
+                                        :
+                                        <>
+                                            <div className={classes.post__option} onClick={handleLikePost}>
+                                            <HaveLike />
+                                            <p style={{ marginLeft: '10px' }}>{post.likes.length} Thích</p>
+                                            </div>
+                                        </>
+                                    }
+                                
                                 <div className={classes.post__option} onClick={handleShowComment}>
                                     <ChatBubbleOutlineOutlinedIcon />
                                     <p style={{ marginLeft: '10px' }}>Bình luận</p>
@@ -96,7 +162,7 @@ const Post = ({ post }) => {
                             </div>
                             {isComment &&
                                 <div className={classes.comments}>
-                                    <Comment post={post}  />
+                                    <Comment post={post} />
                                 </div>
                             }
 

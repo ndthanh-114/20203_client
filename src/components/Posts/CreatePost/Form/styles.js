@@ -52,8 +52,8 @@ export default makeStyles(theme => ({
 
     image: {
         display: 'flex', 
-        alignItems: 'center',
-        justifyContent: 'space-between'
+        flexDirection: 'column',
+        
     }, 
     submit: {
       
@@ -67,10 +67,17 @@ export default makeStyles(theme => ({
         fontSize: 'large',
         color: 'blue',
         backgroundColor: 'white',
-        right: '5px',
+        right: '10px',
         top: '5px',
         borderRadius: '50%',
         cursor: 'pointer'
+    },
+    prevFile: {
+        backgroundColor: '#ADDCFF',
+        position: 'relative', 
+        padding: '5px 35px 5px 10px',
+        borderRadius: '20px',
+        margin:'5px 5px 5px 0'
     }, 
     closeForm: {
         position: 'absolute',
@@ -84,4 +91,8 @@ export default makeStyles(theme => ({
         boxShadow: theme.shadows[5],
         
     },
+    filebase: {
+        color: 'blue',
+    }
+    
 }))

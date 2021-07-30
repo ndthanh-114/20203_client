@@ -7,8 +7,10 @@ const posts = (state = {isLoading: false, posts: []}, action) => {
         case END_LOADING: 
             return {...state, isLoading: false}
         case FETCH_ALL:
-        case CREATE:
             return {...state, posts: action.payload};
+        case CREATE:
+            state.posts.unshift(action.payload) 
+            return {...state};
         case COMMENT:
             return {...state, posts: state.posts.map(post => post._id === action.payload._id ? action.payload : post)};
         case UPDATE:

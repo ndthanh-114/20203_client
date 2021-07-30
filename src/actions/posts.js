@@ -6,13 +6,16 @@ export const getPosts = () => async (dispatch) => {
     try{
         dispatch({type: START_LOADING})
         const {data} = await api.fetchPosts();
+        console.log('data ' + data)
         dispatch({type: FETCH_ALL, payload: data})
         dispatch({type: END_LOADING})
     }catch(error){
-        alert(`${error.response.data.message}`);
+        
+        console.log(error.response)
         dispatch({type: END_LOADING})
         localStorage.clear()
     }
+    
 }
 
 export const createPost = (newPost) => async (dispatch) => {
