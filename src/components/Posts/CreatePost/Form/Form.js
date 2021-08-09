@@ -8,10 +8,10 @@ import HighlightOffTwoToneIcon from '@material-ui/icons/HighlightOffTwoTone';
 import { useDispatch } from 'react-redux'
 import { createPost } from '../../../../actions/posts'
 
-const MAX_SIZE = 29 * 1024;
+const MAX_SIZE = 1 * 1000;
 let totalSize = 0;
 
-const Form = ({ user, setOpen }) => {
+const Form = ({ user, setOpen,  socket }) => {
 
     const [postData, setPostData] = useState({
         message: '',
@@ -81,8 +81,15 @@ const Form = ({ user, setOpen }) => {
             setOpen(false)
 
             setIsLoading(false)
+            const email = user?.result?.email
+            socket.emit('newPost', {email}, ()=> {
+                
+            })
+
+            
         } catch (error) {
             setOpen(false)
+            setIsLoading(false)
             console.log(error);
         }
     }

@@ -9,7 +9,7 @@ import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import Form from './Form/Form'
 
-const CreatePost = ({ user }) => {
+const CreatePost = ({ user, socket }) => {
     const [open, setOpen] = useState(false);
     
 
@@ -63,7 +63,7 @@ const CreatePost = ({ user }) => {
                 }}
             >
                 <Fade in={open}>
-                    <Form user={user} setOpen={setOpen} />
+                    <Form user={user} setOpen={setOpen} socket={socket}/>
                 </Fade>
             </Modal>
         </Paper>
