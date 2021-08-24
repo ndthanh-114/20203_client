@@ -11,7 +11,7 @@ import { createPost } from '../../../../actions/posts'
 const MAX_SIZE = 1 * 1000;
 let totalSize = 0;
 
-const Form = ({ user, setOpen,  socket }) => {
+const Form = ({ user, setOpen, socket }) => {
 
     const [postData, setPostData] = useState({
         message: '',
@@ -27,7 +27,7 @@ const Form = ({ user, setOpen,  socket }) => {
 
     useEffect(() => {
 
-        postData.selectedFile.map(file => {
+        postData.selectedFile.forEach(file => {
             if (file.size.split(' ')[1] === 'kB')
                 totalSize += Number(file.size.split(' ')[0])
             else
@@ -46,47 +46,47 @@ const Form = ({ user, setOpen,  socket }) => {
 
     }
 
-    const PrevImage = () => {
-        return (
-            postData.selectedFile.map(file => {
-                if (file.type.includes("image")) {
-                    return <div key={file.name} className={classes.prevImage}>
-                        <img src={file.base64} style={{ height: '100px', marginRight: '5px', objectFit: 'contain' }} alt='' />
-                        <HighlightOffTwoToneIcon className={classes.closeImage} onClick={() => handleCloseImage(file.name)} />
-                    </div>
-                }
-            })
-        )
-    }
-    const PrevFile = () => {
-        return (
-            postData.selectedFile.map(file => {
-                if (!file.type.includes("image")) {
-                    return <div key={file.name} className={classes.prevFile}>
+    // const PrevImage = () => {
+    //     return (
+    //         postData.selectedFile.map(file => {
+    //             if (file.type.includes("image")) {
+    //                 return <div key={file.name} className={classes.prevImage}>
+    //                     <img src={file.base64} style={{ height: '100px', marginRight: '5px', objectFit: 'contain' }} alt='' />
+    //                     <HighlightOffTwoToneIcon className={classes.closeImage} onClick={() => handleCloseImage(file.name)} />
+    //                 </div>
+    //             }
+    //         })
+    //     )
+    // }
+    // const PrevFile = () => {
+    //     return (
+    //         postData.selectedFile.map(file => {
+    //             if (!file.type.includes("image")) {
+    //                 return <div key={file.name} className={classes.prevFile}>
 
-                        {file.name}
-                        <HighlightOffTwoToneIcon className={classes.closeImage} onClick={() => handleCloseImage(file.name)} />
-                    </div>
-                }
-            })
-        )
-    }
+    //                     {file.name}
+    //                     <HighlightOffTwoToneIcon className={classes.closeImage} onClick={() => handleCloseImage(file.name)} />
+    //                 </div>
+    //             }
+    //         })
+    //     )
+    // }
     const handleSubmit = async (e) => {
         e.preventDefault()
         console.log(postData)
         // console.log(Content());
         try {
             setIsLoading(true)
-            await dispatch(createPost(postData))
+            const res = await dispatch(createPost(postData))
             setOpen(false)
 
             setIsLoading(false)
-            const email = user?.result?.email
-            socket.emit('newPost', {email}, ()=> {
-                
+            const postId = res?._id;
+            socket.emit('newPost', { postId }, () => {
+
             })
 
-            
+
         } catch (error) {
             setOpen(false)
             setIsLoading(false)
@@ -123,6 +123,7 @@ const Form = ({ user, setOpen,  socket }) => {
                                     <textarea
                                         onChange={(e) => setPostData({ ...postData, message: e.target.value })}
                                         value={postData.message}
+                                        autoFocus
                                         name="message"
                                         rows="4"
                                         cols="50"
@@ -132,10 +133,30 @@ const Form = ({ user, setOpen,  socket }) => {
 
                                     <div className={classes.image} >
                                         <div style={{ display: 'flex', overflow: 'auto', width: '485px' }}>
-                                            <PrevImage />
+                                            {/* <PrevImage /> */}
+                                            {
+                                                postData.selectedFile.map(file => {
+                                                    if (file.type.includes("image")) {
+                                                        return <div key={file.name} className={classes.prevImage}>
+                                                            <img src={file.base64} style={{ height: '100px', marginRight: '5px', objectFit: 'contain' }} alt='' />
+                                                            <HighlightOffTwoToneIcon className={classes.closeImage} onClick={() => handleCloseImage(file.name)} />
+                                                        </div>
+                                                    }else return null;
+                                                })
+                                            }
                                         </div>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: '485px' }}>
-                                            <PrevFile />
+                                            {/* <PrevFile />     */}
+                                            {
+                                                postData.selectedFile.map(file => {
+                                                    if (!file.type.includes("image")) {
+                                                        return <div key={file.name} className={classes.prevFile}>
+                                                            {file.name}
+                                                            <HighlightOffTwoToneIcon className={classes.closeImage} onClick={() => handleCloseImage(file.name)} />
+                                                        </div>
+                                                    }else return null;
+                                                })
+                                            }
                                         </div>
                                         {
                                             !postData.selectedFile.length &&
@@ -154,7 +175,7 @@ const Form = ({ user, setOpen,  socket }) => {
                                     </div>
                                 </div>
                             </div>
-                            {isMaxSize && <div style={{ color: 'red',fontStyle: 'italic', margin: '5px' }}>Vượt quá kích thước cho phép</div>}
+                            {isMaxSize && <div style={{ color: 'red', fontStyle: 'italic', margin: '5px' }}>Vượt quá kích thước cho phép</div>}
 
                             <Button disabled={(postData.message.trim() === '' && postData.selectedFile.length === 0) || isMaxSize} type="submit" fullWidth variant="contained" color="primary" className={classes.submit}>
                                 Đăng

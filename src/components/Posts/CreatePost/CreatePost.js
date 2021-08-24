@@ -11,7 +11,7 @@ import Form from './Form/Form'
 
 const CreatePost = ({ user, socket }) => {
     const [open, setOpen] = useState(false);
-    
+
 
     const classes = useStyles()
 
@@ -27,11 +27,11 @@ const CreatePost = ({ user, socket }) => {
             <div className={classes.header__createPost}>
                 <Avatar>{user?.result?.email[0]}</Avatar>
                 <form className={classes.form___createPost}>
-                    <input 
-                        readOnly 
-                        onClick={handleOpen} 
-                        className={classes.input__createPost} 
-                        type="text" placeholder="Bạn đang nghĩ gì?" 
+                    <input
+                        readOnly
+                        onClick={handleOpen}
+                        className={classes.input__createPost}
+                        type="text" placeholder="Bạn đang nghĩ gì?"
                     />
                 </form>
             </div>
@@ -50,22 +50,25 @@ const CreatePost = ({ user, socket }) => {
                 </div>
 
             </div>
-            <Modal
-                aria-labelledby="transition-modal-title"
-                aria-describedby="transition-modal-description"
-                className={classes.modal}
-                open={open}
-                
-                closeAfterTransition
-                BackdropComponent={Backdrop}
-                BackdropProps={{
-                    timeout: 500,
-                }}
-            >
-                <Fade in={open}>
-                    <Form user={user} setOpen={setOpen} socket={socket}/>
-                </Fade>
-            </Modal>
+            {
+                open &&
+                <Modal
+                    aria-labelledby="transition-modal-title"
+                    aria-describedby="transition-modal-description"
+                    className={classes.modal}
+                    open={open}
+
+                    closeAfterTransition
+                    BackdropComponent={Backdrop}
+                    BackdropProps={{
+                        timeout: 500,
+                    }}
+                >
+                    <Fade in={open}>
+                        <Form user={user} setOpen={setOpen} socket={socket} />
+                    </Fade>
+                </Modal>
+            }
         </Paper>
     )
 }

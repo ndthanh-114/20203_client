@@ -19,27 +19,5 @@ export default makeStyles((theme) => ({
   form: {
     width: '100%',
     marginTop: theme.spacing(3),
-  },
-  notification: {
-    position: 'absolute || fixed',
-    padding: '20px',
-    borderRadius: '20px',
-    right: '10px',
-    top: '10px',
-    display: 'flex',
-  },
-  notificationMessage:{
-    borderRight: '1px solid gray',
-    flex: '1',
-    '&:hover': {
-      backgroundColor: 'gray',
-    }
-  },
-  
-  closeNotification:{
-    '&:hover': {
-      backgroundColor: 'gray',
-    }
   }
- 
 }));

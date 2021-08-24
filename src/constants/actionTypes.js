@@ -6,7 +6,7 @@ export const DELETE  = 'DELETE'
 export const UPDATE  = 'UPDATE'
 export const COMMENT = 'COMMENT'
 export const START_LOADING = 'START_LOADING'
-
+export const NEW_POST = 'NEW_POST'
 export const END_LOADING = 'END_LOADING'
 
 

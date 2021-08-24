@@ -22,6 +22,8 @@ export const createPost = (newPost) => async (dispatch) => {
     try {
         const { data } = await api.createPost(newPost);
         dispatch({ type: CREATE, payload: data })
+        console.log(data);
+        return data;
     } catch (error) {
         alert(`${error.response.data.message}`);
         localStorage.clear()

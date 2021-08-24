@@ -12,6 +12,8 @@ import Post from './Post/Post'
 import CreatePost from './CreatePost/CreatePost'
 import decode from 'jwt-decode'
 import io from 'socket.io-client'
+import CustomizedSnackbar from '../CustomizedSnackbar/CustomizedSnackbar'
+
 let socket;
 
 const Posts = () => {
@@ -24,17 +26,22 @@ const Posts = () => {
     const { posts, isLoading } = useSelector((state) => state.posts)
 
     const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
-  
+    // const ENDPOINT = 'http://localhost:5000/'
+
 
     const handleLogout = () => {
         dispatch({ type: LOGOUT })
         history.push('/auth')
     }
     useEffect(() => {
+        console.log('useEffect posts')
+
         dispatch(getPosts())
     }, [dispatch])
 
     useEffect(() => {
+        console.log('useEffect posts')
+
         const token = user?.token;
         if (token) {
             const decodedToken = decode(token);
@@ -51,19 +58,14 @@ const Posts = () => {
                 }
 
             })
-            socket.on('notification', ({ text }) => {
-                if (text) {
-                    console.log(text)
-                    
-                    let retVal = window.confirm(`${text}`);
-                    if( retVal === true ) {
-                        dispatch(getPosts())
-                     }
-    
-                }
-            })
+        }
+        return () => {
+            history.push('/auth')
+            socket.disconnect()
+            socket.off()
         }
     }, [location])
+
 
     return (
         isLoading ? <div style={{ display: 'flex', padding: '5px', flexDirection: 'column', width: '100%', placeItems: 'center' }}><CircularProgress style={{ color: 'white' }} /></div>
@@ -71,24 +73,27 @@ const Posts = () => {
             <Grow in>
                 <Container component="main" maxWidth="lg" className={classes.posts}>
                     {user ?
-                        <Grid container justifyContent="center" alignItems="stretch" spacing={3}>
-                            <Grid item sm={12} md={3}>
-                                <Profile user={user} handleLogout={handleLogout} />
+                        <>
+                            <CustomizedSnackbar socket={socket} />
+                            <Grid container justifyContent="center" alignItems="stretch" spacing={3}>
+                                <Grid item sm={12} md={3}>
+                                    <Profile user={user} socket={socket} handleLogout={handleLogout} />
+                                </Grid>
+                                <Grid item sm={12} md={8}>
+                                    <CreatePost
+                                        user={user}
+
+                                        socket={socket}
+                                    />
+                                    {posts.map((post) => (
+                                        <Post key={post._id} post={post} socket={socket} />
+                                    ))}
+                                </Grid>
                             </Grid>
-                            <Grid item sm={12} md={8}>
-                                <CreatePost
-                                    user={user}
-                                   
-                                    socket={socket}
-                                />
-                                {posts.map((post) => (
-                                    <Post key={post._id} post={post} socket={socket} />
-                                ))}
-                            </Grid>
-                        </Grid>
+                        </>
                         :
                         <Redirect to="/auth" />
-                    } 
+                    }
                 </Container>
 
             </Grow>

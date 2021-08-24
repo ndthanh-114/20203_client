@@ -1,12 +1,25 @@
 import { makeStyles } from "@material-ui/styles";
 
-export default makeStyles((theme)=> ({
+export default makeStyles((theme) => ({
     post: {
         width: '100%',
         marginTop: '15px',
         padding: '5px',
     },
-    post__top:{
+    newPost: {
+        animation: `$myEffect 3000ms`,
+    },
+    "@keyframes myEffect": {
+        "0%": {
+            opacity: 0,
+            transform: "translateY(-200%)"
+        },
+        "100%": {
+            opacity: 1,
+            transform: "translateY(0)"
+        }
+    },
+    post__top: {
         display: 'flex',
         position: 'relative',
         alignItems: 'center',
@@ -44,35 +57,35 @@ export default makeStyles((theme)=> ({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-       
-       position: 'relative',
-       background: 'whitesmoke',
-    }, 
+
+        position: 'relative',
+        background: 'whitesmoke',
+    },
 
     previousImage: {
         position: 'absolute',
         cursor: 'pointer',
-        top: '45%', 
+        top: '45%',
         left: '0',
         padding: '5px',
-        
+
     },
     nextImage: {
         position: 'absolute',
         cursor: 'pointer',
-        top: '45%', 
+        top: '45%',
         right: '0',
         padding: '5px',
-        
+
     },
     icon: {
-        
-        color: 'black', 
+
+        color: 'black',
         opacity: '0.7'
     },
-    
+
     haveImage: {
-      
+
         flex: '0.7',
         width: '90%',
     },
@@ -95,20 +108,20 @@ export default makeStyles((theme)=> ({
         color: 'gray',
         cursor: 'pointer',
         padding: '5px 5px 0 5px',
-    }, 
+    },
     post__option: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent:'center',
+        justifyContent: 'center',
         flex: '1',
         '&:hover': {
             backgroundColor: '#eff2f5',
             borderRadius: '20px'
         }
-    }, 
+    },
     comments: {
         marginTop: '5px',
         borderTop: '1px solid lightgray'
     },
-    
+
 }))

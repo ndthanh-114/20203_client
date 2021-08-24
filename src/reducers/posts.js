@@ -1,11 +1,13 @@
-import {START_LOADING, END_LOADING, COMMENT, FETCH_ALL, CREATE, DELETE, UPDATE } from '../constants/actionTypes'
+import {NEW_POST, START_LOADING, END_LOADING, COMMENT, FETCH_ALL, CREATE, DELETE, UPDATE } from '../constants/actionTypes'
 
-const posts = (state = {isLoading: false, posts: []}, action) => {
+const posts = (state = {newPost: {}, isLoading: false, posts: []}, action) => {
     switch (action.type) {
         case START_LOADING: 
             return {...state, isLoading: true}
         case END_LOADING: 
             return {...state, isLoading: false}
+        case NEW_POST: 
+            return {...state, newPost: action.payload}
         case FETCH_ALL:
             return {...state, posts: action.payload};
         case CREATE:

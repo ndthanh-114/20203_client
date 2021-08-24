@@ -1,19 +1,7 @@
-import { makeStyles } from '@material-ui/core/styles'
+import {makeStyles} from '@material-ui/core/styles'
 
-export default makeStyles(theme => ({
-    commentsOuterContainer: {
-        padding: '5px',
-        display: 'flex',
-        alignItems: 'stretch',
-        flexDirection: 'column',
-    },
-    commentsInnerContainer: {
-        margin: '5px 0',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        
-    },
+export default makeStyles((theme) => ({
+    
     form___comment: {
         display: 'flex',
         borderRadius: '20px',
@@ -32,6 +20,7 @@ export default makeStyles(theme => ({
         padding: '5px 10px',
         borderRadius: '15px',
         backgroundColor: 'whitesmoke',
+        
         // wordBreak: 'break-all',
         // wordWrap: 'break-word',
     },

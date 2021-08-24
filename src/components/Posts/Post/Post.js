@@ -13,6 +13,9 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import Comment from './Comment/Comment'
 import { fetchPostComment } from '../../../api/index'
+import {  useSelector } from 'react-redux'
+import classNames from 'classnames'
+
 
 const Post = ({ post, socket }) => {
     const [isLoading, setIsLoading] = useState(false)
@@ -26,10 +29,10 @@ const Post = ({ post, socket }) => {
     const user = JSON.parse(localStorage.getItem('profile'))
     const [lengthImage, setLengthImage] = useState(0)
     const [currentImage, setCurrentImage] = useState(0)
-
+    const { newPost } = useSelector(state => state.posts) 
 
     useEffect(() => {
-
+        console.log('useEffect post')
         if (isComment) {
             const postId = post._id;
             socket.emit('join', { postId, user }, ({ error, post }) => {
@@ -40,7 +43,7 @@ const Post = ({ post, socket }) => {
 
             })
         }
-    }, [isComment])
+    }, [isComment, socket, post._id, user])
 
     let arrayImage = []
     const handleDelete = async () => {
@@ -74,7 +77,7 @@ const Post = ({ post, socket }) => {
                         return <a key={file.name} className={classes.fileOther} title={file.name} href={file.base64} download>
                             <div key={file.name} className={classes.file}>{file.name}</div>
                         </a>
-                    }
+                    }else return null;
                 })}
             </>
         }
@@ -119,40 +122,6 @@ const Post = ({ post, socket }) => {
         }
     }
 
-    // socket
-    // const HaveLike = () => {
-    //     if (post.likes.length > 0) {
-    //         return post.likes.find(like => like === user?.result?._id)
-    //             ? (
-    //                 <><ThumbUpAltIcon style={{ color: 'blue' }} /></>
-    //             ) : (
-    //                 <><ThumbUpAltOutlinedIcon /></>
-    //             )
-    //     }
-    //     return <><ThumbUpAltOutlinedIcon /></>
-    // }
-    // const handleLikePost = () => {
-    //     console.log('vao')
-    //     setIsUpdate(true)
-    //     socket.emit('join', { post, user }, ({ error, post }) => {
-    //         if (error) {
-    //             alert(error)
-    //         }
-
-    //         if (post) {
-    //             console.log(post)
-    //         }
-    //     })
-
-    //     socket.emit('send like', ({ user, post }), (error) => {
-    //         if (error) {
-    //             alert(error)
-    //         }
-    //         setIsUpdate(false)
-    //     })
-    // }
-
-
     const handleShowComment =  async () => {
         
         if (!opened) {
@@ -183,7 +152,7 @@ const Post = ({ post, socket }) => {
     };
     return (
         <>
-            <Paper key={post._id} className={classes.post}>
+            <Paper key={post._id} className={classNames(classes.post, newPost.is && newPost?.postId === post._id ? classes.newPost : null)}>
                 <div className={classes.post__top}>
                     <Avatar className={classes.post__avatar}>{post.creator[0]}</Avatar>
                     <div className={classes.post__topInfo}>
@@ -252,7 +221,7 @@ const Post = ({ post, socket }) => {
                             }
                             {isComment &&
                                 <div className={classes.comments}>
-                                    <Comment post={post} setIsLoadingComment={setIsLoadingComment} opened={opened} isLoadingComment={isLoadingComment} socket={socket} handleDelete={handleDelete} />
+                                    <Comment isComment={isComment} post={post} setIsLoadingComment={setIsLoadingComment} opened={opened} isLoadingComment={isLoadingComment} socket={socket} handleDelete={handleDelete} />
                                 </div>
                             }
 
