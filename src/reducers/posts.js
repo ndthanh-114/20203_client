@@ -1,6 +1,6 @@
 import {NEW_POST, START_LOADING, END_LOADING, COMMENT, FETCH_ALL, CREATE, DELETE, UPDATE } from '../constants/actionTypes'
 
-const posts = (state = {newPost: {}, isLoading: false, posts: []}, action) => {
+const posts = (state = {childClicked: null, newPost: {}, isLoading: false, posts: []}, action) => {
     switch (action.type) {
         case START_LOADING: 
             return {...state, isLoading: true}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, createRef } from 'react'
 import { Container, Grow, Grid, CircularProgress } from '@material-ui/core'
 import useStyles from './styles'
 import { Redirect } from 'react-router-dom'
@@ -23,10 +23,11 @@ const Posts = () => {
     const dispatch = useDispatch()
     const history = useHistory()
     const location = useLocation()
-    const { posts, isLoading } = useSelector((state) => state.posts)
+    const { posts, childClicked,  isLoading } = useSelector((state) => state.posts)
+    const [elRefs, setElRefs] = useState([]);
 
-    const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
-    // const ENDPOINT = 'http://localhost:5000/'
+    // const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
+    const ENDPOINT = 'http://localhost:5000/'
 
 
     const handleLogout = () => {
@@ -38,6 +39,11 @@ const Posts = () => {
 
         dispatch(getPosts())
     }, [dispatch])
+
+    useEffect(() => {
+        setElRefs((refs) => Array(posts.length).fill().map((_, i) => refs[i] || createRef()));
+      }, [posts]);
+
 
     useEffect(() => {
         console.log('useEffect posts')
@@ -85,8 +91,8 @@ const Posts = () => {
 
                                         socket={socket}
                                     />
-                                    {posts.map((post) => (
-                                        <Post key={post._id} post={post} socket={socket} />
+                                    {posts.map((post, i) => (
+                                        <Post ref={elRefs[i]} selected={Number(childClicked) === i} refProp={elRefs[i]} key={post._id} post={post} socket={socket} />
                                     ))}
                                 </Grid>
                             </Grid>
