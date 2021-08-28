@@ -13,6 +13,9 @@ import CreatePost from './CreatePost/CreatePost'
 import decode from 'jwt-decode'
 import io from 'socket.io-client'
 import CustomizedSnackbar from '../CustomizedSnackbar/CustomizedSnackbar'
+import CustomizedNotification from '../CustomizedNotification/CustomizedNotification'
+import { CLEAN_NOTIFICATION, CHILD_CLICKED } from '../../constants/actionTypes'
+
 
 let socket;
 
@@ -23,7 +26,7 @@ const Posts = () => {
     const dispatch = useDispatch()
     const history = useHistory()
     const location = useLocation()
-    const { posts, childClicked,  isLoading } = useSelector((state) => state.posts)
+    const { posts, childClicked, isLoading } = useSelector((state) => state.posts)
     const [elRefs, setElRefs] = useState([]);
 
     // const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
@@ -41,8 +44,9 @@ const Posts = () => {
     }, [dispatch])
 
     useEffect(() => {
+        console.log('useEffect refs')
         setElRefs((refs) => Array(posts.length).fill().map((_, i) => refs[i] || createRef()));
-      }, [posts]);
+    }, [posts]);
 
 
     useEffect(() => {
@@ -62,10 +66,14 @@ const Posts = () => {
                 if (error) {
                     alert(error)
                 }
-
+                socket.emit("set username", {
+                    username: user?.result?.email
+                });
             })
         }
         return () => {
+            // dispatch({type: CLEAN_NOTIFICATION})
+            // dispatch({type: CHILD_CLICKED, payload: null})    
             history.push('/auth')
             socket.disconnect()
             socket.off()
@@ -81,6 +89,7 @@ const Posts = () => {
                     {user ?
                         <>
                             <CustomizedSnackbar socket={socket} />
+                            <CustomizedNotification socket={socket} />
                             <Grid container justifyContent="center" alignItems="stretch" spacing={3}>
                                 <Grid item sm={12} md={3}>
                                     <Profile user={user} socket={socket} handleLogout={handleLogout} />
@@ -92,7 +101,9 @@ const Posts = () => {
                                         socket={socket}
                                     />
                                     {posts.map((post, i) => (
-                                        <Post ref={elRefs[i]} selected={Number(childClicked) === i} refProp={elRefs[i]} key={post._id} post={post} socket={socket} />
+                                        <div  ref={elRefs[i]} key={i} >
+                                            <Post selected={Number(childClicked) === i} refProp={elRefs[i]} key={post._id} post={post} socket={socket} indexPost={i} />
+                                        </div>
                                     ))}
                                 </Grid>
                             </Grid>

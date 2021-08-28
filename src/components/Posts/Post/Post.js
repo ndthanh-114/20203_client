@@ -13,11 +13,11 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import Comment from './Comment/Comment'
 import { fetchPostComment } from '../../../api/index'
-import {  useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import classNames from 'classnames'
 
 
-const Post = ({ post, socket }) => {
+const Post = ({ post, socket, indexPost, selected, refProp }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [opened, setOpened] = useState(false)
     const [isComment, setIsComment] = useState(false)
@@ -29,8 +29,13 @@ const Post = ({ post, socket }) => {
     const user = JSON.parse(localStorage.getItem('profile'))
     const [lengthImage, setLengthImage] = useState(0)
     const [currentImage, setCurrentImage] = useState(0)
-    const { newPost } = useSelector(state => state.posts) 
-
+    const { newPost } = useSelector(state => state.posts)
+    const [comments, setComments] = useState(post?.comments || []);
+    const [totalSubcomments, setTotalSubcomments] = useState([])
+    if (selected) {
+        console.log('vao');
+        refProp?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
     useEffect(() => {
         console.log('useEffect post')
         if (isComment) {
@@ -44,6 +49,51 @@ const Post = ({ post, socket }) => {
             })
         }
     }, [isComment, socket, post._id, user])
+
+    useEffect(() => {
+        if (opened) {
+            // console.log('cmt of post')
+            socket.on('comment', async ({ result: { data, prevCommentId, totalSubcomment, _id }, idPost }) => {
+                if (String(idPost) === String(post?._id)) {
+                    const tmp = [...comments, { data, prevCommentId, totalSubcomment, _id }]
+
+                    await setComments(tmp)
+                    // console.log(comments)
+                    post.comments.push({ data, prevCommentId, totalSubcomment, _id })
+                    let tmp2 = []
+                    post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
+                    await setTotalSubcomments([...tmp2])
+                }
+                // console.log(totalSubcomments)
+            })
+            return () => {
+                socket.off('comment')
+            }
+        }
+    }, [opened, post, isComment, socket, comments])
+
+    useEffect(() => {
+        if (opened) {
+            socket.on('newSubCmt', async ({ i }) => {
+                let tmp2 = []
+                post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
+
+                totalSubcomments.push(...tmp2)
+
+                if (totalSubcomments || totalSubcomments === []) {
+                    let count = totalSubcomments[Number(i)] + 1;
+                    let tmp = totalSubcomments.splice(Number(i), 1, count);
+                    post.comments[Number(i)].totalSubcomment = totalSubcomments[Number(i)];
+                    totalSubcomments.splice(tmp2.length)
+                    await setTotalSubcomments(totalSubcomments.slice(0))
+
+                }
+            })
+            return () => {
+                socket.off('newSubCmt')
+            }
+        } else return;
+    }, [isComment, socket, post._id, opened, totalSubcomments])
 
     let arrayImage = []
     const handleDelete = async () => {
@@ -77,7 +127,7 @@ const Post = ({ post, socket }) => {
                         return <a key={file.name} className={classes.fileOther} title={file.name} href={file.base64} download>
                             <div key={file.name} className={classes.file}>{file.name}</div>
                         </a>
-                    }else return null;
+                    } else return null;
                 })}
             </>
         }
@@ -101,7 +151,7 @@ const Post = ({ post, socket }) => {
     // no socket
     const HaveLike = () => {
         if (post.likes.length > 0) {
-            return post.likes.find(like => like === user?.result?._id)
+            return post.likes.find(like => like === user?.result?.email)
                 ? (
                     <><ThumbUpAltIcon style={{ color: 'blue' }} /></>
                 ) : (
@@ -122,31 +172,35 @@ const Post = ({ post, socket }) => {
         }
     }
 
-    const handleShowComment =  async () => {
-        
+    const handleShowComment = async () => {
+
         if (!opened) {
             setIsFake(true)
             try {
                 setIsLoadingComment(true)
-                let {data} = await fetchPostComment(post._id)
+                let { data } = await fetchPostComment(post._id)
                 console.log(data)
-                
-                if(data) {
+
+                if (data) {
                     post.comments = data;
+                    await setComments([...data])
+                    let tmp2 = []
+                    post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
+                    await setTotalSubcomments([...tmp2])
                     console.log("...");
                     setOpened(true)
-                   
-                    
+
+
                     setIsLoadingComment(false)
                 }
             } catch (error) {
                 console.log(error)
-               
-                setIsLoadingComment(false)      
+
+                setIsLoadingComment(false)
             }
             setIsFake(false)
         }
-        
+
         setIsComment(!isComment)
 
     };
@@ -221,7 +275,20 @@ const Post = ({ post, socket }) => {
                             }
                             {isComment &&
                                 <div className={classes.comments}>
-                                    <Comment isComment={isComment} post={post} setIsLoadingComment={setIsLoadingComment} opened={opened} isLoadingComment={isLoadingComment} socket={socket} handleDelete={handleDelete} />
+                                    <Comment
+                                        isComment={isComment}
+                                        post={post}
+                                        setIsLoadingComment={setIsLoadingComment}
+                                        opened={opened}
+                                        isLoadingComment={isLoadingComment}
+                                        socket={socket}
+                                        handleDelete={handleDelete}
+                                        comments={comments}
+                                        setComments={setComments}
+                                        totalSubcomments={totalSubcomments}
+                                        setTotalSubcomments={setTotalSubcomments}
+                                        indexPost={indexPost}
+                                    />
                                 </div>
                             }
 

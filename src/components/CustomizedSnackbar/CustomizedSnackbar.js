@@ -27,7 +27,7 @@ const CustomizedSnackbar = ({ socket }) => {
         return () => {
             if(socket) socket.off('notification')
         }
-    }, [])
+    }, [dispatch, socket])
 
 
     const handleClose = (event, reason) => {
