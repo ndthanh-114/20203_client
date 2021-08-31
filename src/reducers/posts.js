@@ -1,6 +1,6 @@
-import { NEW_POST, DELETE_NOTIFICATION, NOTIFICATION, CLEAN_NOTIFICATION, CHILD_CLICKED, START_LOADING, END_LOADING, COMMENT, FETCH_ALL, CREATE, DELETE, UPDATE } from '../constants/actionTypes'
+import { NEW_POST, IS_COMMENT, DELETE_NOTIFICATION, SHOW_COMMENT, NOTIFICATION, CLEAN_NOTIFICATION, CHILD_CLICKED, START_LOADING, END_LOADING, COMMENT, FETCH_ALL, CREATE, DELETE, UPDATE } from '../constants/actionTypes'
 
-const posts = (state = { childClicked: null, notifications: [], newPost: {}, isLoading: false, posts: [] }, action) => {
+const posts = (state = { childClicked: -1, isComments: [], notifications: [], newPost: {}, isLoading: false, posts: [], showComment: null }, action) => {
     switch (action.type) {
         case START_LOADING:
             return { ...state, isLoading: true }
@@ -18,10 +18,15 @@ const posts = (state = { childClicked: null, notifications: [], newPost: {}, isL
         case NEW_POST:
             return { ...state, newPost: action.payload }
         case FETCH_ALL:
-            return { ...state, posts: action.payload };
+            return { ...state, posts: action.payload, isComments: Array(action.payload.length).fill(false) };
         case CREATE:
             state.posts.unshift(action.payload)
+            state.isComments.unshift(false)
             return { ...state };
+        case IS_COMMENT:
+            return { ...state, isComments: state.isComments.map((isCmt, i) => Number(i) === Number(action.payload) ? !isCmt : isCmt) };
+        case SHOW_COMMENT:
+            return { ...state, showComment: action.payload };
         case COMMENT:
             return { ...state, posts: state.posts.map(post => post._id === action.payload._id ? action.payload : post) };
         case UPDATE:

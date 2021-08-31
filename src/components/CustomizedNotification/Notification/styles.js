@@ -1,3 +1,4 @@
+import { Hidden } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 export default makeStyles((theme) => ({
@@ -36,5 +37,10 @@ export default makeStyles((theme) => ({
 
     }
   },
-  
+  truncate: {
+    maxWidth: '60px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
 }));

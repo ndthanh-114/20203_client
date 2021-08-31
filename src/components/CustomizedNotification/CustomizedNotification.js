@@ -29,12 +29,19 @@ export default function CustomizedNotification({ socket }) {
 
   useEffect(() => {
     if (socket) {
-      socket.on('interaction', ({ error, title, email, data, indexPost }) => {
+      socket.on('interaction', ({ error, title, email, data, indexPost,type,dataCmtPrev, indexOfSubCmt, idCmtPrev }) => {
         if (error) {
           alert(error)
         }
-        console.log( title, email, data, indexPost )
-        dispatch({ type: Noti, payload: { email, data, title, indexPost } })
+        // console.log( title, email, data, indexPost )
+        if(type === "COMMENT"){
+          // console.log(title, email, data, indexPost,type,dataCmtPrev, indexOfSubCmt, idCmtPrev)
+          dispatch({ type: Noti, payload: { email, data, title, indexPost, type, dataCmtPrev: '', indexOfSubCmt: -1, idCmtPrev: '' } })
+        }else if( type === "SUB_COMMENT"){
+          dispatch({ type: Noti, payload: { email, data, title, indexPost, type, dataCmtPrev, indexOfSubCmt, idCmtPrev } })
+        }else if(type === "LIKE"){
+          dispatch({ type: Noti, payload: { email, data, title, indexPost, type, dataCmtPrev: '', indexOfSubCmt: -1, idCmtPrev: '' } })
+        }
       })
     }
     return () => {

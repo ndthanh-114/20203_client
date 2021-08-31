@@ -6,21 +6,22 @@ import { useDispatch, useSelector } from 'react-redux'
 import useStyles from './styles';
 import { NEW_POST, CREATE } from '../../constants/actionTypes';
 
-const CustomizedSnackbar = ({ socket }) => {
+const CustomizedSnackbar = ({ socket, getRefs }) => {
     const classes = useStyles();
     const dispatch = useDispatch()
     const { newPost } = useSelector(state => state.posts)
 
     useEffect(() => {
         if (socket) {
-            socket.on('notification', ({ error, post }) => {
+            socket.on('notification', async ({ error, post }) => {
                 if (error) {
                     alert(error)
                 }
                 if (post) {
-                    console.log(post);
-                    dispatch({ type: NEW_POST, payload: { is: true, postId: post?._id, postEmail: post?.creator } })
-                    dispatch({ type: CREATE, payload: post })
+                    // console.log(post);
+                    await dispatch({ type: NEW_POST, payload: { is: true, postId: post?._id, postEmail: post?.creator } })
+                    await dispatch({ type: CREATE, payload: post })
+                    await getRefs()
                 }
             })
         }

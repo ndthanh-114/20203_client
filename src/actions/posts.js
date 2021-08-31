@@ -22,7 +22,7 @@ export const createPost = (newPost) => async (dispatch) => {
     try {
         const { data } = await api.createPost(newPost);
         dispatch({ type: CREATE, payload: data })
-        console.log(data);
+        // console.log(data);
         return data;
     } catch (error) {
         alert(`${error.response.data.message}`);
@@ -44,6 +44,7 @@ export const likePost = (id) => async (dispatch) => {
     try {
         const { data } = await api.likePost(id);
         dispatch({ type: UPDATE, payload: data })
+        return data;
     } catch (error) {
         alert('Bài viết không khả dụng')
         dispatch(getPosts())
@@ -65,7 +66,7 @@ export const commentPost = (value, id) => async (dispatch) => {
 export const loadPostComments = (id) => async (dispatch) => {
     try {
         const { data } = await api.fetchPostComment(id);
-        console.log(data);
+        // console.log(data);
         return data;
     } catch (error) {
         console.log(error);

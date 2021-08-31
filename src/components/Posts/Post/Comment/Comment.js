@@ -3,15 +3,18 @@ import { Typography, CircularProgress } from '@material-ui/core/';
 import { fetchSubComments } from '../../../../api'
 import useStyles from './styles';
 import OneRootComment from '../OneRootComment/OneRootComment';
+import { useSelector } from 'react-redux'
+
 //comments: data, prevId, _id, totalSubComment
 
-const Comment = ({ post, isComment, indexPost, socket, handleDelete, comments, setComments, totalSubcomments, setTotalSubcomments, opened, isLoadingComment, setIsLoadingComment }) => {
+const Comment = ({ post, subCommentToSocket, showSubCmt, setNewSubCmtToSocket, handleShowComment, indexPost, socket, handleDelete, comments, setComments, totalSubcomments, setTotalSubcomments, opened, isLoadingComment, setIsLoadingComment }) => {
     const user = JSON.parse(localStorage.getItem('profile'));
     const [comment, setComment] = useState('');
     let [openedSubCmt, setOpenedSubCmt] = useState(false)
 
     const [isUpdate, setIsUpdate] = useState(false)
     const [isShowSubComments, setIsShowSubComments] = useState([])
+    const { showComment, isComments } = useSelector((state) => state.posts)
 
 
     // const [postSubComments, setPostSubComments] = useState([])
@@ -35,64 +38,18 @@ const Comment = ({ post, isComment, indexPost, socket, handleDelete, comments, s
 
     }, [])
 
-    // useEffect(() => {
+    useEffect(() => {
+        if(!isShowSubComments[showSubCmt?.indexOfSubCmt])
+            showSubComment(showSubCmt?.indexOfSubCmt, showSubCmt?.idCmtPrev)
+        
 
-    //     if (isComment) {
-    //         console.log("cmt of cmt")
-    //         socket.on('comment', async ({ result: { data, prevCommentId, totalSubcomment, _id }, idPost }) => {
-    //             // alert('dau vao')
-    //             if (String(idPost) === String(post._id)) {
-    //                 const tmp = [...comments, { data, prevCommentId, totalSubcomment, _id }]
-    //                 // alert('nhan duoc')
-    //                 await setComments(tmp)
-    //                 // console.log(totalSubcomments)
-    //                 // totalSubcomments.push(totalSubcomment)
+    }, [showSubCmt])
 
-    //                 console.log(comments)
-    //                 // post.comments = comments
-    //                 post.comments.push({ data, prevCommentId, totalSubcomment, _id })
-    //                 let tmp2 = []
-    //                 post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
-    //                 await setTotalSubcomments([...tmp2])
-    //                 // console.log(totalSubcomments)
-    //             }
-    //         })
-    //         return () => {
-    //             socket.off('comment')
-    //         }
-    //     } else return;
-    // }, [isComment, socket, post, comments])
-
-    // useEffect(() => {
-    //     if (isComment) {
-    //         socket.on('newSubCmt', async ({ i }) => {
-    //             let tmp2 = []
-    //             post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
-    //             // console.log(tmp2) //[1,2,3]
-
-    //             // console.log(tmp2);
-    //             totalSubcomments.push(...tmp2) //no ra [] ??
-    //             // console.log(totalSubcomments)
-    //             // console.log(i);
-    //             if (totalSubcomments || totalSubcomments === []) {
-    //                 let count = totalSubcomments[Number(i)] + 1;
-    //                 totalSubcomments.splice(Number(i), 1, count);
-    //                 post.comments[Number(i)].totalSubcomment = totalSubcomments[Number(i)];
-    //                 totalSubcomments.splice(tmp2.length)
-    //                 await setTotalSubcomments(totalSubcomments.slice(0))
-    //                 // alert(totalSubcomments)
-    //             }
-    //         })
-    //         return () => {
-    //             socket.off('newSubCmt')
-    //         }
-    //     } else return;
-    // }, [isComment, socket, post, comments])
-
+   
 
     const getSubComments = async (index, idComment) => {
         const { data } = await fetchSubComments(idPost, idComment);
-        console.log(data);
+        // console.log(data);
         return data;
     }
 
@@ -111,7 +68,7 @@ const Comment = ({ post, isComment, indexPost, socket, handleDelete, comments, s
 
         if (comment) {
             const prevId = ''
-            socket.emit('send comment', ({ email, idPost, data: comment, prevId }), (error) => {
+            socket.emit('send comment', ({ email, idPost, data: comment, prevId, indexPost }), (error) => {
                 if (error) {
                     alert(error)
                     handleDelete()
@@ -120,7 +77,7 @@ const Comment = ({ post, isComment, indexPost, socket, handleDelete, comments, s
                 setIsUpdate(false);
 
                 //send interactions
-                socket.emit('send interaction', ({ email, idPost, data: comment, prevId, indexPost }), (error) => {
+                socket.emit('send interaction', ({ email, idPost, data: comment, prevId, indexPost, type: "COMMENT" }), (error) => {
                     if (error) {
                         alert(error)
                     }
@@ -153,7 +110,7 @@ const Comment = ({ post, isComment, indexPost, socket, handleDelete, comments, s
 
             console.log('openedSubCmt', openedSubCmt)
         }
-        console.log(isShowSubComments)
+        // console.log(isShowSubComments)
     }
 
     return (
@@ -208,10 +165,12 @@ const Comment = ({ post, isComment, indexPost, socket, handleDelete, comments, s
                                                         c={c}
                                                         key={i}
                                                         i={i}
+                                                        indexPost={indexPost}
                                                         email={email}
                                                         idPost={idPost}
+                                                        setNewSubCmtToSocket={setNewSubCmtToSocket}
                                                         socket={socket}
-
+                                                        subCommentToSocket={subCommentToSocket}
                                                         isShowSubComments={isShowSubComments}
                                                         openedSubCmt={openedSubCmt}
                                                         setIsShowSubComments={setIsShowSubComments}

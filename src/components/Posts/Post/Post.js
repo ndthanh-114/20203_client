@@ -6,21 +6,22 @@ import ThumbUpAltIcon from '@material-ui/icons/ThumbUpAlt';
 import ChatBubbleOutlineOutlinedIcon from '@material-ui/icons/ChatBubbleOutlineOutlined';
 import ShareOutlinedIcon from '@material-ui/icons/ShareOutlined';
 import moment from 'moment'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { deletePost, likePost } from '../../../actions/posts';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import Comment from './Comment/Comment'
 import { fetchPostComment } from '../../../api/index'
-import { useSelector } from 'react-redux'
+
+import { IS_COMMENT, CHILD_CLICKED } from '../../../constants/actionTypes'
 import classNames from 'classnames'
 
 
-const Post = ({ post, socket, indexPost, selected, refProp }) => {
+const Post = ({ post, socket, newSubCmtToSocket,setCommentToSocket, setNewSubCmtToSocket, subCommentToSocket, indexPost, selected, refProp, commentToSocket }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [opened, setOpened] = useState(false)
-    const [isComment, setIsComment] = useState(false)
+    // const [isComment, setIsComment] = useState(false)
     const [isLoadingComment, setIsLoadingComment] = useState(false)
     const [isUpdate, setIsUpdate] = useState(false)
     const [isFake, setIsFake] = useState(false)
@@ -29,71 +30,86 @@ const Post = ({ post, socket, indexPost, selected, refProp }) => {
     const user = JSON.parse(localStorage.getItem('profile'))
     const [lengthImage, setLengthImage] = useState(0)
     const [currentImage, setCurrentImage] = useState(0)
-    const { newPost } = useSelector(state => state.posts)
+    const { newPost, isComments, showComment,childClicked } = useSelector(state => state.posts)
     const [comments, setComments] = useState(post?.comments || []);
     const [totalSubcomments, setTotalSubcomments] = useState([])
-    if (selected) {
-        console.log('vao');
-        refProp?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    const [showSubCmt, setShowSubCmt] = useState(null)
+    // const { isComments } = useSelector((state) => state.posts)
+
     useEffect(() => {
-        console.log('useEffect post')
-        if (isComment) {
-            const postId = post._id;
-            socket.emit('join', { postId, user }, ({ error, post }) => {
-                if (error) {
-                    alert(error)
-                }
-
-
-            })
+        if (selected) {
+            // console.log('vao');
+            refProp?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            dispatch({type: CHILD_CLICKED, payload: -1})
         }
-    }, [isComment, socket, post._id, user])
+    }, [childClicked, dispatch, refProp, selected])
+    // useEffect(() => {
+    //     console.log('useEffect post')
+
+    //         const postId = post._id;
+    //         socket.emit('join', { postId, user }, ({ error, post }) => {
+    //             if (error) {
+    //                 alert(error)
+    //             }
+    //         })
+
+    // }, [socket, user])
 
     useEffect(() => {
-        if (opened) {
-            // console.log('cmt of post')
-            socket.on('comment', async ({ result: { data, prevCommentId, totalSubcomment, _id }, idPost }) => {
-                if (String(idPost) === String(post?._id)) {
-                    const tmp = [...comments, { data, prevCommentId, totalSubcomment, _id }]
-
-                    await setComments(tmp)
-                    // console.log(comments)
-                    post.comments.push({ data, prevCommentId, totalSubcomment, _id })
-                    let tmp2 = []
-                    post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
-                    await setTotalSubcomments([...tmp2])
-                }
-                // console.log(totalSubcomments)
-            })
-            return () => {
-                socket.off('comment')
+        
+        if (showComment && showComment?.indexPost === indexPost) {
+        
+            if (!isComments[indexPost]) handleShowComment()
+            // dispatch({type: SHOW_COMMENT, payload: -1})
+            if (typeof showComment?.indexOfSubCmt == 'number' && showComment?.indexOfSubCmt !== -1){
+                const {indexOfSubCmt, idCmtPrev} = showComment;
+                setShowSubCmt({indexOfSubCmt, idCmtPrev})
             }
+                
         }
-    }, [opened, post, isComment, socket, comments])
+
+    }, [showComment])
 
     useEffect(() => {
-        if (opened) {
-            socket.on('newSubCmt', async ({ i }) => {
+        if (commentToSocket) {
+            if (String(commentToSocket.idPost) === String(post?._id)) {
+                const { data, prevCommentId, totalSubcomment, _id, ...info } = commentToSocket;
+                const tmp = [...comments, { data, prevCommentId, totalSubcomment, _id }]
+
+                setComments(tmp)
+                // console.log(comments)
+                post.comments.push({ data, prevCommentId, totalSubcomment, _id })
                 let tmp2 = []
                 post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
+                setTotalSubcomments([...tmp2])
+                setCommentToSocket({...commentToSocket, idPost: ''})
+            }
+        }
+    }, [commentToSocket])
 
+    useEffect(() => {
+        if (opened && newSubCmtToSocket) {
+            // console.log(newSubCmtToSocket)
+
+            if (String(newSubCmtToSocket.idPost) === String(post?._id)) {
+                const { i, ...info } = newSubCmtToSocket;
+                // console.log(newSubCmtToSocket)
+                let tmp2 = []
+                post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
                 totalSubcomments.push(...tmp2)
 
                 if (totalSubcomments || totalSubcomments === []) {
-                    let count = totalSubcomments[Number(i)] + 1;
-                    let tmp = totalSubcomments.splice(Number(i), 1, count);
+                    let count = post?.comments[Number(i)].totalSubcomment + 1;
+                    totalSubcomments.splice(Number(i), 1, count);
                     post.comments[Number(i)].totalSubcomment = totalSubcomments[Number(i)];
                     totalSubcomments.splice(tmp2.length)
-                    await setTotalSubcomments(totalSubcomments.slice(0))
-
+                    setTotalSubcomments(totalSubcomments.slice(0))
                 }
-            })
-            return () => {
-                socket.off('newSubCmt')
+                if(newSubCmtToSocket.i !== -1)
+                    setNewSubCmtToSocket({ idPost: '', i: -1, idComment: '', idSubCmt: newSubCmtToSocket.idSubCmt })
             }
-        } else return;
-    }, [isComment, socket, post._id, opened, totalSubcomments])
+        }
+    }, [newSubCmtToSocket])
 
     let arrayImage = []
     const handleDelete = async () => {
@@ -163,8 +179,16 @@ const Post = ({ post, socket, indexPost, selected, refProp }) => {
     const handleLikePost = async () => {
         try {
             setIsUpdate(true)
-            await dispatch(likePost(post._id))
-
+            const data = await dispatch(likePost(post._id))
+            const isLike = data.likes.find(like => like === user?.result?.email)
+            // alert(isLike)
+            if(isLike && socket){
+                socket.emit('send likeInteraction', ({ email: user?.result?.email, indexPost, idPost: post._id ,title: post.message,data, isLike }), (error) => {
+                    if (error) {
+                        alert(error)
+                    }
+                })
+            }
         } catch (error) {
 
         } finally {
@@ -179,7 +203,7 @@ const Post = ({ post, socket, indexPost, selected, refProp }) => {
             try {
                 setIsLoadingComment(true)
                 let { data } = await fetchPostComment(post._id)
-                console.log(data)
+                // console.log(data)
 
                 if (data) {
                     post.comments = data;
@@ -187,7 +211,7 @@ const Post = ({ post, socket, indexPost, selected, refProp }) => {
                     let tmp2 = []
                     post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
                     await setTotalSubcomments([...tmp2])
-                    console.log("...");
+                    // console.log("...");
                     setOpened(true)
 
 
@@ -201,8 +225,8 @@ const Post = ({ post, socket, indexPost, selected, refProp }) => {
             setIsFake(false)
         }
 
-        setIsComment(!isComment)
-
+        // setIsComment(!isComment)
+        dispatch({ type: IS_COMMENT, payload: indexPost })
     };
     return (
         <>
@@ -273,10 +297,11 @@ const Post = ({ post, socket, indexPost, selected, refProp }) => {
                             {isFake &&
                                 <div style={{ display: 'flex', padding: '5px', flexDirection: 'column', width: '100%', placeItems: 'center' }}><CircularProgress /></div>
                             }
-                            {isComment &&
+                            {isComments[indexPost] &&
                                 <div className={classes.comments}>
                                     <Comment
-                                        isComment={isComment}
+                                        subCommentToSocket={subCommentToSocket}
+                                        setNewSubCmtToSocket={setNewSubCmtToSocket}
                                         post={post}
                                         setIsLoadingComment={setIsLoadingComment}
                                         opened={opened}
@@ -288,6 +313,8 @@ const Post = ({ post, socket, indexPost, selected, refProp }) => {
                                         totalSubcomments={totalSubcomments}
                                         setTotalSubcomments={setTotalSubcomments}
                                         indexPost={indexPost}
+                                        handleShowComment={handleShowComment}
+                                        showSubCmt={showSubCmt}
                                     />
                                 </div>
                             }

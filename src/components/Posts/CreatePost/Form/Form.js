@@ -73,7 +73,7 @@ const Form = ({ user, setOpen, socket }) => {
     // }
     const handleSubmit = async (e) => {
         e.preventDefault()
-        console.log(postData)
+        // console.log(postData)
         // console.log(Content());
         try {
             setIsLoading(true)

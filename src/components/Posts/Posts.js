@@ -14,7 +14,7 @@ import decode from 'jwt-decode'
 import io from 'socket.io-client'
 import CustomizedSnackbar from '../CustomizedSnackbar/CustomizedSnackbar'
 import CustomizedNotification from '../CustomizedNotification/CustomizedNotification'
-import { CLEAN_NOTIFICATION, CHILD_CLICKED } from '../../constants/actionTypes'
+
 
 
 let socket;
@@ -28,9 +28,31 @@ const Posts = () => {
     const location = useLocation()
     const { posts, childClicked, isLoading } = useSelector((state) => state.posts)
     const [elRefs, setElRefs] = useState([]);
+    const [changeRefs, setChangeRefs] = useState(-2);
+    const [commentToSocket, setCommentToSocket] = useState({
+        data: '',
+        prevCommentId: '',
+        totalSubcomment: 0,
+        _id: '',
+        idPost: '',
+        indexPost: -1
+    });
 
-    // const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
-    const ENDPOINT = 'http://localhost:5000/'
+    const [subCommentToSocket, setSubCommentToSocket] = useState({
+        data: '',
+        prevCommentId: '',
+        totalSubcomment: '',
+        _id: '',
+        index: -1,
+        idPost: ''
+    })
+
+    const [newSubCmtToSocket, setNewSubCmtToSocket] = useState({
+        idPost: '', i: -1, idComment: '', idSubCmt: ''
+    })
+
+    const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
+    // const ENDPOINT = 'http://localhost:5000/'
 
 
     const handleLogout = () => {
@@ -38,19 +60,30 @@ const Posts = () => {
         history.push('/auth')
     }
     useEffect(() => {
-        console.log('useEffect posts')
+        // console.log('useEffect posts')
 
         dispatch(getPosts())
     }, [dispatch])
 
+    const getRefs =async () => {
+        if(changeRefs + 1 === posts.length){
+            await setElRefs((refs) => Array(posts.length).fill().map((_, i) => i === 0 ? createRef(): refs[i-1]));
+        }
+        else{
+            // console.log('refs all')
+            await setElRefs((refs) => Array(posts.length).fill().map((_, i) => createRef()));
+        }
+        await setChangeRefs(posts.length)
+    }
     useEffect(() => {
-        console.log('useEffect refs')
-        setElRefs((refs) => Array(posts.length).fill().map((_, i) => refs[i] || createRef()));
+       
+        getRefs() 
+     
     }, [posts]);
 
 
     useEffect(() => {
-        console.log('useEffect posts')
+        // console.log('useEffect posts')
 
         const token = user?.token;
         if (token) {
@@ -79,6 +112,45 @@ const Posts = () => {
             socket.off()
         }
     }, [location])
+    useEffect(() => {
+        if (socket) {
+            socket.on('comment', async ({ result: { data, prevCommentId, totalSubcomment, _id }, idPost, indexPost }) => {
+                setCommentToSocket({ data, prevCommentId, totalSubcomment, _id, idPost, indexPost })
+            })
+            return () => {
+                socket.off('comment')
+            }
+        }
+    }, [commentToSocket])
+    useEffect(() => {
+        if (socket) {
+            socket.on('newSubCmt', async ({ idPost, i, idComment, idSubCmt }) => {
+                
+                if (String(newSubCmtToSocket.idSubCmt) !== String(idSubCmt)){
+
+                    // console.log('nhan', newSubCmtToSocket.idSubCmt)
+                    // console.log('socket ', idSubCmt)
+                    await setNewSubCmtToSocket({ ...newSubCmtToSocket, idPost, i, idComment, idSubCmt })
+                    // console.log(newSubCmtToSocket)
+                }
+            })
+            return () => {
+                socket.off('newSubCmt')
+            }
+        }
+    }, [newSubCmtToSocket])
+
+    useEffect(() => {
+        if (socket) {
+            socket.on('subComment', async ({ result: { data, prevCommentId, totalSubcomment, _id }, index, idPost }) => {
+                setSubCommentToSocket({ data, prevCommentId, totalSubcomment, _id, index, idPost })
+            })
+            return () => {
+                socket.off('subComment')
+            }
+        }
+    }, [subCommentToSocket])
+
 
 
     return (
@@ -88,7 +160,7 @@ const Posts = () => {
                 <Container component="main" maxWidth="lg" className={classes.posts}>
                     {user ?
                         <>
-                            <CustomizedSnackbar socket={socket} />
+                            <CustomizedSnackbar getRefs={getRefs} socket={socket} />
                             <CustomizedNotification socket={socket} />
                             <Grid container justifyContent="center" alignItems="stretch" spacing={3}>
                                 <Grid item sm={12} md={3}>
@@ -101,8 +173,19 @@ const Posts = () => {
                                         socket={socket}
                                     />
                                     {posts.map((post, i) => (
-                                        <div  ref={elRefs[i]} key={i} >
-                                            <Post selected={Number(childClicked) === i} refProp={elRefs[i]} key={post._id} post={post} socket={socket} indexPost={i} />
+                                        <div ref={elRefs[i]} key={i} >
+                                            <Post
+                                                newSubCmtToSocket={newSubCmtToSocket}
+                                                setNewSubCmtToSocket={setNewSubCmtToSocket}
+                                                commentToSocket={commentToSocket}
+                                                setCommentToSocket={setCommentToSocket}
+                                                selected={Number(childClicked) === i}
+                                                refProp={elRefs[i]} key={post._id}
+                                                post={post}
+                                                socket={socket}
+                                                indexPost={i}
+                                                subCommentToSocket={subCommentToSocket}
+                                            />
                                         </div>
                                     ))}
                                 </Grid>
