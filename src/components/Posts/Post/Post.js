@@ -6,21 +6,22 @@ import ThumbUpAltIcon from '@material-ui/icons/ThumbUpAlt';
 import ChatBubbleOutlineOutlinedIcon from '@material-ui/icons/ChatBubbleOutlineOutlined';
 import ShareOutlinedIcon from '@material-ui/icons/ShareOutlined';
 import moment from 'moment'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { deletePost, likePost } from '../../../actions/posts';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import Comment from './Comment/Comment'
 import { fetchPostComment } from '../../../api/index'
-import {  useSelector } from 'react-redux'
+
+import { IS_COMMENT, CHILD_CLICKED } from '../../../constants/actionTypes'
 import classNames from 'classnames'
 
 
-const Post = ({ post, socket }) => {
+const Post = ({ post, socket, newSubCmtToSocket,setCommentToSocket, setNewSubCmtToSocket, subCommentToSocket, indexPost, selected, refProp, commentToSocket }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [opened, setOpened] = useState(false)
-    const [isComment, setIsComment] = useState(false)
+    // const [isComment, setIsComment] = useState(false)
     const [isLoadingComment, setIsLoadingComment] = useState(false)
     const [isUpdate, setIsUpdate] = useState(false)
     const [isFake, setIsFake] = useState(false)
@@ -29,21 +30,86 @@ const Post = ({ post, socket }) => {
     const user = JSON.parse(localStorage.getItem('profile'))
     const [lengthImage, setLengthImage] = useState(0)
     const [currentImage, setCurrentImage] = useState(0)
-    const { newPost } = useSelector(state => state.posts) 
+    const { newPost, isComments, showComment,childClicked } = useSelector(state => state.posts)
+    const [comments, setComments] = useState(post?.comments || []);
+    const [totalSubcomments, setTotalSubcomments] = useState([])
+    const [showSubCmt, setShowSubCmt] = useState(null)
+    // const { isComments } = useSelector((state) => state.posts)
 
     useEffect(() => {
-        console.log('useEffect post')
-        if (isComment) {
-            const postId = post._id;
-            socket.emit('join', { postId, user }, ({ error, post }) => {
-                if (error) {
-                    alert(error)
-                }
-
-
-            })
+        if (selected) {
+            // console.log('vao');
+            refProp?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            dispatch({type: CHILD_CLICKED, payload: -1})
         }
-    }, [isComment, socket, post._id, user])
+    }, [childClicked, dispatch, refProp, selected])
+    // useEffect(() => {
+    //     console.log('useEffect post')
+
+    //         const postId = post._id;
+    //         socket.emit('join', { postId, user }, ({ error, post }) => {
+    //             if (error) {
+    //                 alert(error)
+    //             }
+    //         })
+
+    // }, [socket, user])
+
+    useEffect(() => {
+        
+        if (showComment && showComment?.indexPost === indexPost) {
+        
+            if (!isComments[indexPost]) handleShowComment()
+            // dispatch({type: SHOW_COMMENT, payload: -1})
+            if (typeof showComment?.indexOfSubCmt == 'number' && showComment?.indexOfSubCmt !== -1){
+                const {indexOfSubCmt, idCmtPrev} = showComment;
+                setShowSubCmt({indexOfSubCmt, idCmtPrev})
+            }
+                
+        }
+
+    }, [showComment])
+
+    useEffect(() => {
+        if (commentToSocket) {
+            if (String(commentToSocket.idPost) === String(post?._id)) {
+                const { data, prevCommentId, totalSubcomment, _id, ...info } = commentToSocket;
+                const tmp = [...comments, { data, prevCommentId, totalSubcomment, _id }]
+
+                setComments(tmp)
+                // console.log(comments)
+                post.comments.push({ data, prevCommentId, totalSubcomment, _id })
+                let tmp2 = []
+                post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
+                setTotalSubcomments([...tmp2])
+                setCommentToSocket({...commentToSocket, idPost: ''})
+            }
+        }
+    }, [commentToSocket])
+
+    useEffect(() => {
+        if (opened && newSubCmtToSocket) {
+            // console.log(newSubCmtToSocket)
+
+            if (String(newSubCmtToSocket.idPost) === String(post?._id)) {
+                const { i, ...info } = newSubCmtToSocket;
+                // console.log(newSubCmtToSocket)
+                let tmp2 = []
+                post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
+                totalSubcomments.push(...tmp2)
+
+                if (totalSubcomments || totalSubcomments === []) {
+                    let count = post?.comments[Number(i)].totalSubcomment + 1;
+                    totalSubcomments.splice(Number(i), 1, count);
+                    post.comments[Number(i)].totalSubcomment = totalSubcomments[Number(i)];
+                    totalSubcomments.splice(tmp2.length)
+                    setTotalSubcomments(totalSubcomments.slice(0))
+                }
+                if(newSubCmtToSocket.i !== -1)
+                    setNewSubCmtToSocket({ idPost: '', i: -1, idComment: '', idSubCmt: newSubCmtToSocket.idSubCmt })
+            }
+        }
+    }, [newSubCmtToSocket])
 
     let arrayImage = []
     const handleDelete = async () => {
@@ -77,7 +143,7 @@ const Post = ({ post, socket }) => {
                         return <a key={file.name} className={classes.fileOther} title={file.name} href={file.base64} download>
                             <div key={file.name} className={classes.file}>{file.name}</div>
                         </a>
-                    }else return null;
+                    } else return null;
                 })}
             </>
         }
@@ -101,7 +167,7 @@ const Post = ({ post, socket }) => {
     // no socket
     const HaveLike = () => {
         if (post.likes.length > 0) {
-            return post.likes.find(like => like === user?.result?._id)
+            return post.likes.find(like => like === user?.result?.email)
                 ? (
                     <><ThumbUpAltIcon style={{ color: 'blue' }} /></>
                 ) : (
@@ -113,8 +179,16 @@ const Post = ({ post, socket }) => {
     const handleLikePost = async () => {
         try {
             setIsUpdate(true)
-            await dispatch(likePost(post._id))
-
+            const data = await dispatch(likePost(post._id))
+            const isLike = data.likes.find(like => like === user?.result?.email)
+            // alert(isLike)
+            if(isLike && socket){
+                socket.emit('send likeInteraction', ({ email: user?.result?.email, indexPost, idPost: post._id ,title: post.message,data, isLike }), (error) => {
+                    if (error) {
+                        alert(error)
+                    }
+                })
+            }
         } catch (error) {
 
         } finally {
@@ -122,33 +196,37 @@ const Post = ({ post, socket }) => {
         }
     }
 
-    const handleShowComment =  async () => {
-        
+    const handleShowComment = async () => {
+
         if (!opened) {
             setIsFake(true)
             try {
                 setIsLoadingComment(true)
-                let {data} = await fetchPostComment(post._id)
-                console.log(data)
-                
-                if(data) {
+                let { data } = await fetchPostComment(post._id)
+                // console.log(data)
+
+                if (data) {
                     post.comments = data;
-                    console.log("...");
+                    await setComments([...data])
+                    let tmp2 = []
+                    post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
+                    await setTotalSubcomments([...tmp2])
+                    // console.log("...");
                     setOpened(true)
-                   
-                    
+
+
                     setIsLoadingComment(false)
                 }
             } catch (error) {
                 console.log(error)
-               
-                setIsLoadingComment(false)      
+
+                setIsLoadingComment(false)
             }
             setIsFake(false)
         }
-        
-        setIsComment(!isComment)
 
+        // setIsComment(!isComment)
+        dispatch({ type: IS_COMMENT, payload: indexPost })
     };
     return (
         <>
@@ -219,9 +297,25 @@ const Post = ({ post, socket }) => {
                             {isFake &&
                                 <div style={{ display: 'flex', padding: '5px', flexDirection: 'column', width: '100%', placeItems: 'center' }}><CircularProgress /></div>
                             }
-                            {isComment &&
+                            {isComments[indexPost] &&
                                 <div className={classes.comments}>
-                                    <Comment isComment={isComment} post={post} setIsLoadingComment={setIsLoadingComment} opened={opened} isLoadingComment={isLoadingComment} socket={socket} handleDelete={handleDelete} />
+                                    <Comment
+                                        subCommentToSocket={subCommentToSocket}
+                                        setNewSubCmtToSocket={setNewSubCmtToSocket}
+                                        post={post}
+                                        setIsLoadingComment={setIsLoadingComment}
+                                        opened={opened}
+                                        isLoadingComment={isLoadingComment}
+                                        socket={socket}
+                                        handleDelete={handleDelete}
+                                        comments={comments}
+                                        setComments={setComments}
+                                        totalSubcomments={totalSubcomments}
+                                        setTotalSubcomments={setTotalSubcomments}
+                                        indexPost={indexPost}
+                                        handleShowComment={handleShowComment}
+                                        showSubCmt={showSubCmt}
+                                    />
                                 </div>
                             }
 

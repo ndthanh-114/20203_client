@@ -8,5 +8,13 @@ export const COMMENT = 'COMMENT'
 export const START_LOADING = 'START_LOADING'
 export const NEW_POST = 'NEW_POST'
 export const END_LOADING = 'END_LOADING'
+export const NOTIFICATION = 'NOTIFICATION'
+export const CHILD_CLICKED = 'CHILD_CLICKED'
+export const CLEAN_NOTIFICATION = 'CLEAN_NOTIFICATION'
+export const DELETE_NOTIFICATION = 'DELETE_NOTIFICATION'
+export const IS_COMMENT = 'IS_COMMENT'
+export const SHOW_COMMENT = 'SHOW_COMMENT'
+
+
 
 
