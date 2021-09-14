@@ -126,6 +126,8 @@ export default makeStyles((theme) => ({
     post__bottom: {
         marginTop: '5px',
         fontSize: '1.05em',
+        wordBreak: 'break-all',
+        
         '& img': {
             verticalAlign: 'middle',
         }

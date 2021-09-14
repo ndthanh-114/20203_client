@@ -3,6 +3,8 @@ import { Typography, CircularProgress } from '@material-ui/core'
 import useStyles from './styles'
 import ReactEmoji from 'react-emoji'
 //comment: data, prevId, _id, totalSub
+import InputEmoji from "react-input-emoji";
+
 
 const OneRootComment = ({ post, indexPost, c, setNewSubCmtToSocket, setSubCommentToSocket, subCommentToSocket, i, socket, idPost, email, isShowSubComments, setTotalSubcomments, totalSubcomments, setIsShowSubComments }) => {
     const [isIsSendSub, setIsSendSub] = useState(false)
@@ -54,7 +56,7 @@ const OneRootComment = ({ post, indexPost, c, setNewSubCmtToSocket, setSubCommen
 
    
     const handleReply = (e) => {
-        e.preventDefault()
+        // e.preventDefault()
         setIsSendSub(true);
 
         if (subComment) {
@@ -81,14 +83,14 @@ const OneRootComment = ({ post, indexPost, c, setNewSubCmtToSocket, setSubCommen
         isShowSubComments[i] &&
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px 0' }}>
             {subComments?.map(sC => (
-                <Typography className={classes.list__comment} key={sC._id} variant="subtitle2" style={{ margin: '0 50px' }}>
+                <Typography className={classes.list__comment} key={sC._id} variant="subtitle2" style={{ margin: '0 auto 0 50px' }}>
                     <strong>{sC?.data?.split('::: ')[0]}</strong>
                     <div className={classes.emojiSub}>{ReactEmoji.emojify(sC?.data?.split('::: ')[1])}</div>
                 </Typography>
             ))}
 
-            < form className={classes.form___comment} style={{ margin: '0 50px' }} onSubmit={handleReply}>
-                <input
+            < form className={classes.form___comment} style={{ margin: '0 0 0 48px' }} onSubmit={handleReply}>
+                {/* <input
                     disabled={isIsSendSub}
                     className={classes.input__comment}
                     value={subComment}
@@ -96,6 +98,16 @@ const OneRootComment = ({ post, indexPost, c, setNewSubCmtToSocket, setSubCommen
                     onChange={(e) => setSubComment(e.target.value)}
                     name="subComment"
                     type="text" placeholder="Viết bình luận"
+                /> */}
+                <InputEmoji
+                        disabled={isIsSendSub}
+                        style={{ backgroundColor: 'whitesmoke' }}
+                        value={subComment}
+                        onChange={setSubComment}
+                        cleanOnEnter
+                        onEnter={handleReply}
+                        name="subComment"
+                        placeholder="Viết bình luận"
                 />
                 <button type="submit" hidden>Send</button>
                 {isIsSendSub && <CircularProgress />}

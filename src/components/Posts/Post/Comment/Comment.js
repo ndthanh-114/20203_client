@@ -4,6 +4,7 @@ import { fetchSubComments } from '../../../../api'
 import useStyles from './styles';
 import OneRootComment from '../OneRootComment/OneRootComment';
 import ReactEmoji from 'react-emoji'
+import InputEmoji from "react-input-emoji";
 
 //comments: data, prevId, _id, totalSubComment
 
@@ -39,13 +40,13 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, 
     }, [])
 
     useEffect(() => {
-        if(!isShowSubComments[showSubCmt?.indexOfSubCmt])
+        if (!isShowSubComments[showSubCmt?.indexOfSubCmt])
             showSubComment(showSubCmt?.indexOfSubCmt, showSubCmt?.idCmtPrev)
-        
+
 
     }, [showSubCmt])
 
-   
+
 
     const getSubComments = async (index, idComment) => {
         const { data } = await fetchSubComments(idPost, idComment);
@@ -56,8 +57,7 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, 
     const totalSubCmt = () => {
         let rs = 0;
         if (totalSubcomments?.length) totalSubcomments.forEach(el => rs += el)
-        else 
-        {
+        else {
             setLengCmt(comments.length)
             return 0;
         }
@@ -69,7 +69,7 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, 
 
     // use socket
     const handleComment = async (e) => {
-        e.preventDefault()
+        // e.preventDefault()
         setIsUpdate(true);
 
         if (comment) {
@@ -118,10 +118,9 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, 
         }
         // console.log(isShowSubComments)
     }
-    
-    const handleValue = () => {
-        console.log(comment)
-        return ReactEmoji.emojify(comment);
+
+    const handleOnEnter = () => {
+        console.log("enter", comment);
     }
 
     return (
@@ -203,13 +202,23 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, 
                     <div style={{ display: 'flex', padding: '5px', flexDirection: 'column', width: '100%', placeItems: 'center' }}><CircularProgress /></div>
                 }
                 <form className={classes.form___comment} onSubmit={handleComment}>
-                    <input
+                    {/* <input
                         disabled={isUpdate || isLoadingComment}
                         className={classes.input__comment}
                         value={handleValue()}
                         onChange={(e) => setComment(e.target.value)}
                         name="comment"
                         type="text" placeholder="Viết bình luận"
+                    /> */}
+                    <InputEmoji
+                        disabled={isUpdate || isLoadingComment}
+                        style={{ backgroundColor: 'whitesmoke' }}
+                        value={comment}
+                        onChange={setComment}
+                        cleanOnEnter
+                        onEnter={handleComment}
+                        name="comment"
+                        placeholder="Viết bình luận"
                     />
                     <button type="submit" hidden>Send</button>
                     {isUpdate && <CircularProgress />}

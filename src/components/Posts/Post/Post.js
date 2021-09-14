@@ -14,7 +14,7 @@ import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import Comment from './Comment/Comment'
 import { fetchPostComment } from '../../../api/index'
 import ReactEmoji from 'react-emoji'
-import { IS_COMMENT, CHILD_CLICKED, UPDATE_CMT } from '../../../constants/actionTypes'
+import { IS_COMMENT, CHILD_CLICKED, UPDATE_CMT, DELETED_POST } from '../../../constants/actionTypes'
 import classNames from 'classnames'
 
 
@@ -113,9 +113,11 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket,setCommen
         try {
             setIsLoading(true)
             await dispatch(deletePost(post._id))
+            await dispatch({type: DELETED_POST, payload: Number(indexPost)})
             setIsLoading(false)
         } catch (error) {
             console.log(error)
+            setIsLoading(false)
         }
     }
 

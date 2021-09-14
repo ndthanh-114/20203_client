@@ -26,7 +26,7 @@ const Posts = () => {
     const dispatch = useDispatch()
     const history = useHistory()
     const location = useLocation()
-    const { posts, childClicked, isLoading } = useSelector((state) => state.posts)
+    const { posts, childClicked, isLoading, deletedPost } = useSelector((state) => state.posts)
     const [elRefs, setElRefs] = useState([]);
     const [changeRefs, setChangeRefs] = useState(-2);
     const [commentToSocket, setCommentToSocket] = useState({
@@ -51,8 +51,8 @@ const Posts = () => {
         idPost: '', i: -1, idComment: '', idSubCmt: ''
     })
 
-    // const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
-    const ENDPOINT = 'http://localhost:5000/'
+    const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
+    // const ENDPOINT = 'http://localhost:5000/'
 
 
     const handleLogout = () => {
@@ -69,6 +69,9 @@ const Posts = () => {
         if (changeRefs + 1 === posts.length) {
             await setElRefs((refs) => Array(posts.length).fill().map((_, i) => i === 0 ? createRef() : refs[i - 1]));
         }
+        else if(changeRefs - 1 === posts.length && deletedPost !== -1) {
+            await setElRefs((refs) => Array(posts.length).fill().map((_, i) => i === deletedPost ? null : refs[i]));
+        }
         else {
             // console.log('refs all')
             await setElRefs((refs) => Array(posts.length).fill().map((_, i) => createRef()));
@@ -76,7 +79,7 @@ const Posts = () => {
         await setChangeRefs(posts.length)
     }
     useEffect(() => {
-        console.log(posts)
+        // console.log(posts)
         getRefs()
 
     }, [posts]);
@@ -133,7 +136,7 @@ const Posts = () => {
             socket.on("connect_error", (err) => {
                 console.log(err instanceof Error); // true
                 alert(err.message); // not authorized
-                // localStorage.clear()
+                localStorage.clear()
                 history.push('/auth')
             });
         }
