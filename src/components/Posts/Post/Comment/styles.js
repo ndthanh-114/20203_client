@@ -17,6 +17,7 @@ export default makeStyles(theme => ({
     form___comment: {
         display: 'flex',
         borderRadius: '20px',
+        
     },
     input__comment: {
         flex: '1',
@@ -24,15 +25,21 @@ export default makeStyles(theme => ({
         padding: '10px',
         border: 'none',
         borderRadius: '15px',
-        backgroundColor: 'whitesmoke',
+        backgroundColor: 'whitesmoke !important',
         resize: 'none',
         outline: 'none',
     },
+   
     list__comment: {
         padding: '5px 10px',
         borderRadius: '15px',
         backgroundColor: 'whitesmoke',
-        // wordBreak: 'break-all',
+        wordBreak: 'break-all',
         // wordWrap: 'break-word',
     },
+    emoji: {
+        '& img':{
+            verticalAlign: 'middle !important',
+        }
+    }
 }))

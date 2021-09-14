@@ -13,7 +13,8 @@ export const getPosts = () => async (dispatch) => {
 
         console.log(error.response)
         dispatch({ type: END_LOADING })
-
+        localStorage.clear()
+   
     }
 
 }
@@ -27,6 +28,7 @@ export const createPost = (newPost) => async (dispatch) => {
     } catch (error) {
         alert(`${error.response.data.message}`);
         localStorage.clear()
+ 
     }
 }
 
@@ -37,6 +39,7 @@ export const deletePost = (id) => async (dispatch) => {
     } catch (error) {
         alert(`${error.response.data.message}`);
         localStorage.clear()
+   
     }
 }
 
@@ -47,7 +50,8 @@ export const likePost = (id) => async (dispatch) => {
         return data;
     } catch (error) {
         alert('Bài viết không khả dụng')
-        dispatch(getPosts())
+        localStorage.clear()
+        
     }
 }
 
@@ -60,6 +64,9 @@ export const commentPost = (value, id) => async (dispatch) => {
         return data.comments;
     } catch (error) {
         console.log(error);
+        localStorage.clear()
+        
+
     }
 };
 
@@ -70,5 +77,8 @@ export const loadPostComments = (id) => async (dispatch) => {
         return data;
     } catch (error) {
         console.log(error);
+        localStorage.clear()
+      
+
     }
 };

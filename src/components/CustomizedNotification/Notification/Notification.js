@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux'
 import { Typography } from '@material-ui/core'
-import { CHILD_CLICKED, DELETE_NOTIFICATION, SHOW_COMMENT, UPDATE } from '../../../constants/actionTypes'
+import { CHILD_CLICKED, DELETE_NOTIFICATION, SHOW_COMMENT } from '../../../constants/actionTypes'
 import useStyles from './styles';
-
+import ReactEmoji from 'react-emoji'
 
 
 
@@ -12,7 +12,7 @@ const Notificaion = ({ open, notifications }) => {
     // const [isFake, setIsFake] = useState(false)
 
     const dispatch = useDispatch();
-    const { isComments, showComment, childClicked } = useSelector(state => state.posts)
+    const { isComments } = useSelector(state => state.posts)
 
     return (
         open ?
@@ -22,10 +22,10 @@ const Notificaion = ({ open, notifications }) => {
                         <div key={i}
                             onClick={() => {
                                 // alert('vao childclick')
-                                
-                                    dispatch({ type: CHILD_CLICKED, payload: noti?.indexPost })
 
-                                
+                                dispatch({ type: CHILD_CLICKED, payload: noti?.indexPost })
+
+
                                 dispatch({ type: DELETE_NOTIFICATION, payload: i })
                                 if (noti.type === "COMMENT") {
                                     if (!isComments[i]) {
@@ -39,42 +39,100 @@ const Notificaion = ({ open, notifications }) => {
                                     // console.log('showSubComment ', showComment)
                                 } else if (noti.type === "LIKE") {
                                     // dispatch({ type: SHOW_COMMENT, payload: { indexPost: '', indexOfSubCmt: -1, idCmtPrev: '' } })
-                                    dispatch({ type: UPDATE, payload: noti.data })
+
 
                                 }
-                                
+
                             }}
                             className={classes.notification}
                         >
-                            <Typography gutterBottom variant="subtitle2" >
-                                {
-                                    noti.type === "COMMENT"
+
+                            {
+                                noti.type === "COMMENT"
+                                    ?
+                                    <div className={classes.customSpan}>
+                                        <strong>{noti.email}</strong> đã bình luận bài viết &nbsp;
+                                        <span>
+                                            {noti.title.length >= 10
+                                                ?
+                                                noti.title[9] !== ':'
+                                                    ?
+                                                    ReactEmoji.emojify(noti.title.substring(0, 10) + '...', { attributes: { width: '18px', height: '18px' } })
+                                                    :
+                                                    ReactEmoji.emojify(noti.title.substring(0, 9) + '...', { attributes: { width: '18px', height: '18px' } })
+                                                :
+                                                ReactEmoji.emojify(noti.title, { attributes: { width: '18px', height: '18px' } })}
+                                        </span>
+                                        &nbsp; mà bạn đã tương tác
+                                    </div>
+                                    :
+                                    noti.type === "SUB_COMMENT"
                                         ?
-                                        <span>{noti.email} đã bình luận bài viết <strong >{noti.title.trim().length >= 10 ? `${noti.title.substring(0, 10)} ...`: noti.title}</strong> mà bạn đã tương tác</span>
-                                        :
-                                        noti.type === "SUB_COMMENT"
+                                        <div className={classes.customSpan}>
+                                            <strong>{noti.email}</strong> đã phản hồi bình luận &nbsp;
+                                            <span >
+                                                {noti.dataCmtPrev.trim().length >= 10
+                                                    ?
+                                                    noti.dataCmtPrev[9] !== ':'
+                                                        ?
+                                                            ReactEmoji.emojify(noti.dataCmtPrev.substring(0, 10)+ '...', { attributes: { width: '18px', height: '18px' } })
+                                                        :
+                                                        ReactEmoji.emojify(noti.dataCmtPrev.substring(0, 9) + '...', { attributes: { width: '18px', height: '18px' } }) 
+                                                    :
+                                                    ReactEmoji.emojify(noti.dataCmtPrev, { attributes: { width: '18px', height: '18px' } })}
+                                            </span>
+                                            &nbsp; trong bài viết &nbsp;
+                                            <span>
+                                                {noti.title.length >= 10
+                                                    ?
+                                                    noti.title[9] !== ':'
+                                                        ?
+                                                        ReactEmoji.emojify(noti.title.substring(0, 10) + '...', { attributes: { width: '18px', height: '18px' } })
+                                                        :
+                                                        ReactEmoji.emojify(noti.title.substring(0, 9) + '...', { attributes: { width: '18px', height: '18px' } })
+                                                    :
+                                                    ReactEmoji.emojify(noti.title, { attributes: { width: '18px', height: '18px' } })}
+                                            </span>
+                                            &nbsp; mà bạn đã tương tác
+                                        </div>
+                                        : noti.type === "LIKE"
                                             ?
-                                            <span>{noti.email} đã phản hồi bình luận <strong >{noti.dataCmtPrev.trim().length >= 10 ? `${noti.dataCmtPrev.substring(0, 10)}  ...`: noti.dataCmtPrev}</strong> trong bài viết <strong>{noti.title.length >= 10 ? `${noti.title.substring(0, 10)} ...`: noti.title}</strong> mà bạn đã tương tác</span>
-                                            : noti.type === "LIKE"
-                                            ?
-                                            <span>{noti.email} đã thích trong bài viết <strong >{noti.title.trim().length >= 10 ? `${noti.title.substring(0, 10)} ...`: noti.title}</strong> mà bạn đã tương tác</span>
+                                            <div className={classes.customSpan}>
+                                                <strong>{noti.email}</strong> đã thích trong bài viết &nbsp;
+                                                <span>
+                                                    {noti.title.length >= 10
+                                                        ?
+                                                        noti.title[9] !== ':'
+                                                            ?
+                                                            ReactEmoji.emojify(noti.title.substring(0, 10) +'...', { attributes: { width: '18px', height: '18px' } })
+                                                            :
+                                                            ReactEmoji.emojify(noti.title.substring(0, 9) + '...', { attributes: { width: '18px', height: '18px' } })
+                                                        :
+                                                        ReactEmoji.emojify(noti.title, { attributes: { width: '18px', height: '18px' } })}
+                                                </span>
+                                                &nbsp; mà bạn đã tương tác
+                                            </div>
                                             : null
 
-                                }
-                            </Typography>
+                            }
+
                             {
                                 (noti.type === "COMMENT" || noti.type === "SUB_COMMENT") &&
                                 < Typography gutterBottom
                                     variant='body2'
                                     color="primary"
-                                    style={{ fontSize: '0.8rem',
+                                    style={{
+                                        marginTop: '5px',
+                                        fontSize: '0.8rem',
                                         maxWidth: '350px',
                                         whiteSpace: 'nowrap',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
-                                      }}
+                                        display: 'flex',
+                                        alignSelf: 'center',
+                                    }}
                                 >
-                                    {noti.data}
+                                    {ReactEmoji.emojify(noti.data, { attributes: { width: '18px', height: '18px' } })}
                                 </Typography>
                             }
                         </div>

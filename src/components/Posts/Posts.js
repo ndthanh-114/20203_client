@@ -26,7 +26,7 @@ const Posts = () => {
     const dispatch = useDispatch()
     const history = useHistory()
     const location = useLocation()
-    const { posts, childClicked, isLoading } = useSelector((state) => state.posts)
+    const { posts, childClicked, isLoading, deletedPost } = useSelector((state) => state.posts)
     const [elRefs, setElRefs] = useState([]);
     const [changeRefs, setChangeRefs] = useState(-2);
     const [commentToSocket, setCommentToSocket] = useState({
@@ -65,20 +65,23 @@ const Posts = () => {
         dispatch(getPosts())
     }, [dispatch])
 
-    const getRefs =async () => {
-        if(changeRefs + 1 === posts.length){
-            await setElRefs((refs) => Array(posts.length).fill().map((_, i) => i === 0 ? createRef(): refs[i-1]));
+    const getRefs = async () => {
+        if (changeRefs + 1 === posts.length) {
+            await setElRefs((refs) => Array(posts.length).fill().map((_, i) => i === 0 ? createRef() : refs[i - 1]));
         }
-        else{
+        else if(changeRefs - 1 === posts.length && deletedPost !== -1) {
+            await setElRefs((refs) => Array(posts.length).fill().map((_, i) => i === deletedPost ? null : refs[i]));
+        }
+        else {
             // console.log('refs all')
             await setElRefs((refs) => Array(posts.length).fill().map((_, i) => createRef()));
         }
         await setChangeRefs(posts.length)
     }
     useEffect(() => {
-       
-        getRefs() 
-     
+        // console.log(posts)
+        getRefs()
+
     }, [posts]);
 
 
@@ -92,8 +95,13 @@ const Posts = () => {
         }
 
         setUser(JSON.parse(localStorage.getItem('profile')))
-        socket = io(ENDPOINT)
-
+        socket = io(ENDPOINT, {
+            auth: {
+                token: user?.token,
+                userID: user?.result?._id
+            },
+        })
+        console.log(socket)
         if (user) {
             socket.emit('home', {}, ({ error, home }) => {
                 if (error) {
@@ -122,11 +130,23 @@ const Posts = () => {
             }
         }
     }, [commentToSocket])
+
+    useEffect(() => {
+        if (socket) {
+            socket.on("connect_error", (err) => {
+                console.log(err instanceof Error); // true
+                alert(err.message); // not authorized
+                localStorage.clear()
+                history.push('/auth')
+            });
+        }
+    }, [])
+
     useEffect(() => {
         if (socket) {
             socket.on('newSubCmt', async ({ idPost, i, idComment, idSubCmt }) => {
-                
-                if (String(newSubCmtToSocket.idSubCmt) !== String(idSubCmt)){
+
+                if (String(newSubCmtToSocket.idSubCmt) !== String(idSubCmt)) {
 
                     // console.log('nhan', newSubCmtToSocket.idSubCmt)
                     // console.log('socket ', idSubCmt)
@@ -185,6 +205,7 @@ const Posts = () => {
                                                 socket={socket}
                                                 indexPost={i}
                                                 subCommentToSocket={subCommentToSocket}
+                                                setSubCommentToSocket={setSubCommentToSocket}
                                             />
                                         </div>
                                     ))}

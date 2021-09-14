@@ -7,6 +7,7 @@ import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import HighlightOffTwoToneIcon from '@material-ui/icons/HighlightOffTwoTone';
 import { useDispatch } from 'react-redux'
 import { createPost } from '../../../../actions/posts'
+// import ReactEmoji from 'react-emoji'
 
 const MAX_SIZE = 1 * 1000;
 let totalSize = 0;
@@ -46,31 +47,6 @@ const Form = ({ user, setOpen, socket }) => {
 
     }
 
-    // const PrevImage = () => {
-    //     return (
-    //         postData.selectedFile.map(file => {
-    //             if (file.type.includes("image")) {
-    //                 return <div key={file.name} className={classes.prevImage}>
-    //                     <img src={file.base64} style={{ height: '100px', marginRight: '5px', objectFit: 'contain' }} alt='' />
-    //                     <HighlightOffTwoToneIcon className={classes.closeImage} onClick={() => handleCloseImage(file.name)} />
-    //                 </div>
-    //             }
-    //         })
-    //     )
-    // }
-    // const PrevFile = () => {
-    //     return (
-    //         postData.selectedFile.map(file => {
-    //             if (!file.type.includes("image")) {
-    //                 return <div key={file.name} className={classes.prevFile}>
-
-    //                     {file.name}
-    //                     <HighlightOffTwoToneIcon className={classes.closeImage} onClick={() => handleCloseImage(file.name)} />
-    //                 </div>
-    //             }
-    //         })
-    //     )
-    // }
     const handleSubmit = async (e) => {
         e.preventDefault()
         // console.log(postData)
@@ -130,7 +106,7 @@ const Form = ({ user, setOpen, socket }) => {
                                         className={classes.input_text}
                                         placeholder="Bạn đang nghĩ gì thế?"
                                     />
-
+                                    
                                     <div className={classes.image} >
                                         <div style={{ display: 'flex', overflow: 'auto', width: '485px' }}>
                                             {/* <PrevImage /> */}
@@ -141,7 +117,7 @@ const Form = ({ user, setOpen, socket }) => {
                                                             <img src={file.base64} style={{ height: '100px', marginRight: '5px', objectFit: 'contain' }} alt='' />
                                                             <HighlightOffTwoToneIcon className={classes.closeImage} onClick={() => handleCloseImage(file.name)} />
                                                         </div>
-                                                    }else return null;
+                                                    } else return null;
                                                 })
                                             }
                                         </div>
@@ -154,7 +130,7 @@ const Form = ({ user, setOpen, socket }) => {
                                                             {file.name}
                                                             <HighlightOffTwoToneIcon className={classes.closeImage} onClick={() => handleCloseImage(file.name)} />
                                                         </div>
-                                                    }else return null;
+                                                    } else return null;
                                                 })
                                             }
                                         </div>

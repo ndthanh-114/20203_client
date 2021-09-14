@@ -4,7 +4,7 @@ import { AppBar, Container, Typography } from '@material-ui/core'
 import Auth from './components/Auth/Auth'
 import Posts from './components/Posts/Posts'
 import useStyles from './styles';
-//xin chao
+import './App.css'
 const App = () => {
     //day la new branch
 

@@ -6,7 +6,7 @@ import Bell from '../../assets/bell.gif'
 import useStyles from './styles'
 import Notification from './Notification/Notification'
 import { useDispatch, useSelector } from 'react-redux'
-import { NOTIFICATION as Noti } from '../../constants/actionTypes';
+import { NOTIFICATION as Noti, UPDATE, UPDATE_CMT } from '../../constants/actionTypes';
 
 const StyledBadge = withStyles((theme) => ({
   badge: {
@@ -46,6 +46,28 @@ export default function CustomizedNotification({ socket }) {
     }
     return () => {
       if (socket) socket.off('interaction')
+    }
+  }, [dispatch, socket])
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('res like', ({ data }) => {
+        dispatch({ type: UPDATE, payload: data })
+      })
+    }
+    return () => {
+      if (socket) socket.off('res like')
+    }
+  }, [dispatch, socket])
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('res cmt', ({ idPost }) => {
+        dispatch({ type: UPDATE_CMT, payload: idPost })
+      })
+    }
+    return () => {
+      if (socket) socket.off('res cmt')
     }
   }, [dispatch, socket])
 
