@@ -3,18 +3,18 @@ import { Typography, CircularProgress } from '@material-ui/core/';
 import { fetchSubComments } from '../../../../api'
 import useStyles from './styles';
 import OneRootComment from '../OneRootComment/OneRootComment';
-import { useSelector } from 'react-redux'
+import ReactEmoji from 'react-emoji'
 
 //comments: data, prevId, _id, totalSubComment
 
-const Comment = ({ post, subCommentToSocket, showSubCmt, setNewSubCmtToSocket, handleShowComment, indexPost, socket, handleDelete, comments, setComments, totalSubcomments, setTotalSubcomments, opened, isLoadingComment, setIsLoadingComment }) => {
+const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, showSubCmt, setNewSubCmtToSocket, handleShowComment, indexPost, socket, handleDelete, comments, setComments, totalSubcomments, setTotalSubcomments, opened, isLoadingComment, setIsLoadingComment }) => {
     const user = JSON.parse(localStorage.getItem('profile'));
     const [comment, setComment] = useState('');
     let [openedSubCmt, setOpenedSubCmt] = useState(false)
 
     const [isUpdate, setIsUpdate] = useState(false)
     const [isShowSubComments, setIsShowSubComments] = useState([])
-    const { showComment, isComments } = useSelector((state) => state.posts)
+    // const { showComment, isComments } = useSelector((state) => state.posts)
 
 
     // const [postSubComments, setPostSubComments] = useState([])
@@ -56,7 +56,13 @@ const Comment = ({ post, subCommentToSocket, showSubCmt, setNewSubCmtToSocket, h
     const totalSubCmt = () => {
         let rs = 0;
         if (totalSubcomments?.length) totalSubcomments.forEach(el => rs += el)
-        else return 0;
+        else 
+        {
+            setLengCmt(comments.length)
+            return 0;
+        }
+        setLengCmt(comments.length + rs);
+
         return rs;
     }
 
@@ -112,6 +118,11 @@ const Comment = ({ post, subCommentToSocket, showSubCmt, setNewSubCmtToSocket, h
         }
         // console.log(isShowSubComments)
     }
+    
+    const handleValue = () => {
+        console.log(comment)
+        return ReactEmoji.emojify(comment);
+    }
 
     return (
         <div >
@@ -126,8 +137,11 @@ const Comment = ({ post, subCommentToSocket, showSubCmt, setNewSubCmtToSocket, h
                                     <div key={i} style={{ padding: '5px 10px', display: 'flex', flexDirection: 'column', width: '95%' }}>
                                         <div style={{ display: 'flex', alignItems: "center", gap: '0 10px' }}>
                                             <Typography gutterBottom variant="subtitle2" className={classes.list__comment}>
-                                                <strong>{c?.data?.split('::: ')[0]}</strong><br />
-                                                {c?.data?.split('::: ')[1]}
+                                                <strong>{c?.data?.split('::: ')[0]}</strong>
+                                                <div className={classes.emoji}>
+                                                    {ReactEmoji.emojify(c?.data?.split('::: ')[1])}
+                                                </div>
+
                                             </Typography>
                                             {
                                                 totalSubcomments[i] <= 0 &&
@@ -176,6 +190,7 @@ const Comment = ({ post, subCommentToSocket, showSubCmt, setNewSubCmtToSocket, h
                                                         setIsShowSubComments={setIsShowSubComments}
                                                         setTotalSubcomments={setTotalSubcomments}
                                                         totalSubcomments={totalSubcomments}
+                                                        setSubCommentToSocket={setSubCommentToSocket}
                                                     /> : null
                                         }
                                     </div>
@@ -191,7 +206,7 @@ const Comment = ({ post, subCommentToSocket, showSubCmt, setNewSubCmtToSocket, h
                     <input
                         disabled={isUpdate || isLoadingComment}
                         className={classes.input__comment}
-                        value={comment}
+                        value={handleValue()}
                         onChange={(e) => setComment(e.target.value)}
                         name="comment"
                         type="text" placeholder="Viết bình luận"

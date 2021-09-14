@@ -1,4 +1,3 @@
-import { Hidden } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 export default makeStyles((theme) => ({
@@ -43,4 +42,13 @@ export default makeStyles((theme) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
+  customSpan: {
+    // marginBotton: '5px',
+    '& span': {
+      fontWeight: 'bold',
+    },
+    '& span img': {
+      verticalAlign: 'middle',
+    }
+  }
 }));

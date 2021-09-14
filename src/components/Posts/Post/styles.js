@@ -123,5 +123,11 @@ export default makeStyles((theme) => ({
         marginTop: '5px',
         borderTop: '1px solid lightgray'
     },
-
+    post__bottom: {
+        marginTop: '5px',
+        fontSize: '1.05em',
+        '& img': {
+            verticalAlign: 'middle',
+        }
+    }
 }))

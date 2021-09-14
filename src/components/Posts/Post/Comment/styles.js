@@ -35,4 +35,9 @@ export default makeStyles(theme => ({
         // wordBreak: 'break-all',
         // wordWrap: 'break-word',
     },
+    emoji: {
+        '& img':{
+            verticalAlign: 'middle !important',
+        }
+    }
 }))
