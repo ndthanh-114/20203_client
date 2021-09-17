@@ -16,7 +16,7 @@ const posts = (state = { childClicked: -1, updateNumberCmt: '', deletedPost: -1,
         case DELETE_NOTIFICATION:
             return { ...state, notifications: state.notifications.filter((noti, i) => i !== action.payload)}
         case DELETED_POST: 
-            return {...state, deletedPost: action.payload}
+            return {...state, deletedPost: action.payload, posts: state.posts.filter((post, i) => i !== action.payload), isComments: state.isComments.filter((iC, i) => i !== Number(action.payload))}
         case UPDATE_CMT: 
             return { ...state, updateNumberCmt: action.payload}
         case NEW_POST:
@@ -36,7 +36,7 @@ const posts = (state = { childClicked: -1, updateNumberCmt: '', deletedPost: -1,
         case UPDATE:
             return { ...state, posts: state.posts.map(post => post._id === action.payload._id ? action.payload : post) };
         case DELETE:
-            return { ...state, posts: state.posts.filter(post => post._id !== action.payload) };
+            return { ...state, posts: state.posts.filter(post => post._id !== action.payload.id), deletedPost: action.payload.indexPost, isComments: state.isComments.filter((iC, i) => i !== Number(action.payload.indexPost)) };
         default:
             return state;
     }

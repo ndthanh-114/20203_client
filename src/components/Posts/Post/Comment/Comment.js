@@ -6,13 +6,13 @@ import OneRootComment from '../OneRootComment/OneRootComment';
 import ReactEmoji from 'react-emoji'
 import InputEmoji from "react-input-emoji";
 
+
 //comments: data, prevId, _id, totalSubComment
 
 const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, showSubCmt, setNewSubCmtToSocket, handleShowComment, indexPost, socket, handleDelete, comments, setComments, totalSubcomments, setTotalSubcomments, opened, isLoadingComment, setIsLoadingComment }) => {
     const user = JSON.parse(localStorage.getItem('profile'));
     const [comment, setComment] = useState('');
     let [openedSubCmt, setOpenedSubCmt] = useState(false)
-
     const [isUpdate, setIsUpdate] = useState(false)
     const [isShowSubComments, setIsShowSubComments] = useState([])
     // const { showComment, isComments } = useSelector((state) => state.posts)
@@ -23,7 +23,7 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, 
     const email = user?.result?.email
     const idPost = post._id
 
-
+   
 
     useEffect(() => {
 
@@ -66,6 +66,7 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, 
         return rs;
     }
 
+   
 
     // use socket
     const handleComment = async (e) => {
@@ -105,7 +106,7 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, 
             await setIsShowSubComments(isShowSubComments?.map((iSSC, i) => i === index ? !iSSC : false));
             setOpenedSubCmt(true)
             openedSubCmt = true
-            console.log('openedSubCmt', openedSubCmt)
+            // console.log('openedSubCmt', openedSubCmt)
             const data = await getSubComments(index, idComment)
             post.subComments = data;
         } catch (error) {
@@ -114,7 +115,7 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, 
             setOpenedSubCmt(false)
             openedSubCmt = false
 
-            console.log('openedSubCmt', openedSubCmt)
+            // console.log('openedSubCmt', openedSubCmt)
         }
         // console.log(isShowSubComments)
     }

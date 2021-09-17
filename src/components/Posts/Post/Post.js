@@ -14,11 +14,11 @@ import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import Comment from './Comment/Comment'
 import { fetchPostComment } from '../../../api/index'
 import ReactEmoji from 'react-emoji'
-import { IS_COMMENT, CHILD_CLICKED, UPDATE_CMT, DELETED_POST } from '../../../constants/actionTypes'
+import { IS_COMMENT, CHILD_CLICKED, UPDATE_CMT } from '../../../constants/actionTypes'
 import classNames from 'classnames'
 
 
-const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket,setCommentToSocket, setNewSubCmtToSocket, subCommentToSocket, indexPost, selected, refProp, commentToSocket }) => {
+const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket, setCommentToSocket, setNewSubCmtToSocket, subCommentToSocket, indexPost, selected, refProp, commentToSocket }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [opened, setOpened] = useState(false)
     // const [isComment, setIsComment] = useState(false)
@@ -30,38 +30,39 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket,setCommen
     const user = JSON.parse(localStorage.getItem('profile'))
     const [lengthImage, setLengthImage] = useState(0)
     const [currentImage, setCurrentImage] = useState(0)
-    const { newPost, isComments, showComment,childClicked, updateNumberCmt } = useSelector(state => state.posts)
+    const { newPost, isComments, showComment, childClicked, updateNumberCmt } = useSelector(state => state.posts)
     const [comments, setComments] = useState(post?.comments || []);
     const [totalSubcomments, setTotalSubcomments] = useState([])
     const [showSubCmt, setShowSubCmt] = useState(null)
     const [lengCmt, setLengCmt] = useState(Number(post.lengCmt) || 0);
     // const { isComments } = useSelector((state) => state.posts)
-    
+
     useEffect(() => {
         if (selected) {
             // console.log('vao');
             refProp?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            dispatch({type: CHILD_CLICKED, payload: -1})
+            dispatch({ type: CHILD_CLICKED, payload: -1 })
         }
     }, [childClicked, dispatch, refProp, selected])
     useEffect(() => {
-        if(updateNumberCmt === post._id){
-            setLengCmt(lengCmt+1);
-            dispatch({ type: UPDATE_CMT, payload: ''})
+        if (updateNumberCmt === post._id) {
+            setLengCmt(lengCmt + 1);
+            dispatch({ type: UPDATE_CMT, payload: '' })
         }
-    }, [updateNumberCmt])
+    }, [updateNumberCmt, dispatch])
+
 
     useEffect(() => {
-        
+
         if (showComment && showComment?.indexPost === indexPost) {
-        
+
             if (!isComments[indexPost]) handleShowComment()
             // dispatch({type: SHOW_COMMENT, payload: -1})
-            if (typeof showComment?.indexOfSubCmt == 'number' && showComment?.indexOfSubCmt !== -1){
-                const {indexOfSubCmt, idCmtPrev} = showComment;
-                setShowSubCmt({indexOfSubCmt, idCmtPrev})
+            if (typeof showComment?.indexOfSubCmt == 'number' && showComment?.indexOfSubCmt !== -1) {
+                const { indexOfSubCmt, idCmtPrev } = showComment;
+                setShowSubCmt({ indexOfSubCmt, idCmtPrev })
             }
-                
+
         }
 
     }, [showComment])
@@ -78,7 +79,7 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket,setCommen
                 let tmp2 = []
                 post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
                 setTotalSubcomments([...tmp2])
-                setCommentToSocket({...commentToSocket, idPost: ''})
+                setCommentToSocket({ ...commentToSocket, idPost: '' })
             }
         }
     }, [commentToSocket])
@@ -102,7 +103,7 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket,setCommen
                     totalSubcomments.splice(tmp2.length)
                     setTotalSubcomments(totalSubcomments.slice(0))
                 }
-                if(newSubCmtToSocket.i !== -1)
+                if (newSubCmtToSocket.i !== -1)
                     setNewSubCmtToSocket({ idPost: '', i: -1, idComment: '', idSubCmt: newSubCmtToSocket.idSubCmt })
             }
         }
@@ -112,9 +113,12 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket,setCommen
     const handleDelete = async () => {
         try {
             setIsLoading(true)
-            await dispatch(deletePost(post._id))
-            await dispatch({type: DELETED_POST, payload: Number(indexPost)})
+            await dispatch(deletePost(post._id, indexPost));
+            // await dispatch({ type: DELETED_POST, payload: Number(indexPost) })
             setIsLoading(false)
+            socket.emit('deleted post', ({ creatorPostDeleted: post.creator, indexPostDeleted: indexPost, idPostDeleted: post._id, dataDeleted: post.message }), () => {
+              
+            })
         } catch (error) {
             console.log(error)
             setIsLoading(false)
@@ -181,8 +185,8 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket,setCommen
             const data = await dispatch(likePost(post._id))
             const isLike = data.likes.find(like => like === user?.result?.email)
             // alert(isLike)
-            if(socket){
-                socket.emit('send likeInteraction', ({ email: user?.result?.email, indexPost, idPost: post._id ,title: post.message,data, isLike }), (error) => {
+            if (socket) {
+                socket.emit('send likeInteraction', ({ email: user?.result?.email, indexPost, idPost: post._id, title: post.message, data, isLike }), (error) => {
                     if (error) {
                         alert(error)
                     }

@@ -43,7 +43,7 @@ const CustomizedSnackbar = ({ socket, getRefs }) => {
         <div className={classes.root}>
             <Snackbar
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                open={newPost.is} autoHideDuration={6000} onClose={handleClose}>
+                open={newPost.is} autoHideDuration={3000} onClose={handleClose}>
                 <MuiAlert onClose={handleClose} severity="success" elevation={6} variant="filled">{newPost.postEmail && `${newPost?.postEmail} có bài đăng mới`}</MuiAlert>
             </Snackbar>
         </div>

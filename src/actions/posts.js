@@ -1,5 +1,5 @@
 import * as api from '../api/index'
-import { FETCH_ALL, COMMENT, CREATE, DELETE, UPDATE, START_LOADING, END_LOADING } from '../constants/actionTypes'
+import { FETCH_ALL, COMMENT, AUTH, CREATE, DELETE, UPDATE, START_LOADING, END_LOADING } from '../constants/actionTypes'
 
 
 export const getPosts = () => async (dispatch) => {
@@ -14,7 +14,7 @@ export const getPosts = () => async (dispatch) => {
         console.log(error.response)
         dispatch({ type: END_LOADING })
         localStorage.clear()
-   
+        dispatch({type: AUTH})
     }
 
 }
@@ -28,17 +28,19 @@ export const createPost = (newPost) => async (dispatch) => {
     } catch (error) {
         alert(`${error.response.data.message}`);
         localStorage.clear()
- 
+        dispatch({type: AUTH})
+        
     }
 }
 
-export const deletePost = (id) => async (dispatch) => {
+export const deletePost = (id, indexPost) => async (dispatch) => {
     try {
         await api.deletePost(id);
-        dispatch({ type: DELETE, payload: id })
+        dispatch({ type: DELETE, payload: {id, indexPost }})
     } catch (error) {
         alert(`${error.response.data.message}`);
         localStorage.clear()
+        dispatch({type: AUTH})
    
     }
 }
@@ -51,6 +53,7 @@ export const likePost = (id) => async (dispatch) => {
     } catch (error) {
         alert('Bài viết không khả dụng')
         localStorage.clear()
+        dispatch({type: AUTH})
         
     }
 }
@@ -66,6 +69,7 @@ export const commentPost = (value, id) => async (dispatch) => {
         console.log(error);
         localStorage.clear()
         
+        dispatch({type: AUTH})
 
     }
 };
@@ -78,6 +82,7 @@ export const loadPostComments = (id) => async (dispatch) => {
     } catch (error) {
         console.log(error);
         localStorage.clear()
+        dispatch({type: AUTH})
       
 
     }

@@ -3,7 +3,7 @@ import { Container, Grow, Grid, CircularProgress } from '@material-ui/core'
 import useStyles from './styles'
 import { Redirect } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { LOGOUT } from '../../constants/actionTypes'
+import { LOGOUT,DELETE, DELETED_POST } from '../../constants/actionTypes'
 import { useHistory } from 'react-router-dom'
 import { useLocation } from 'react-router'
 import { getPosts } from '../../actions/posts'
@@ -14,6 +14,7 @@ import decode from 'jwt-decode'
 import io from 'socket.io-client'
 import CustomizedSnackbar from '../CustomizedSnackbar/CustomizedSnackbar'
 import CustomizedNotification from '../CustomizedNotification/CustomizedNotification'
+import CustomizedDeletedPost from '../CustomizedDeletedPost/CustomizedDeletedPost'
 
 
 
@@ -50,6 +51,8 @@ const Posts = () => {
     const [newSubCmtToSocket, setNewSubCmtToSocket] = useState({
         idPost: '', i: -1, idComment: '', idSubCmt: ''
     })
+
+    const [postDeleted, setPostDeleted] = useState({})
 
     const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
     // const ENDPOINT = 'http://localhost:5000/'
@@ -101,7 +104,7 @@ const Posts = () => {
                 userID: user?.result?._id
             },
         })
-        console.log(socket)
+        // console.log(socket)
         if (user) {
             socket.emit('home', {}, ({ error, home }) => {
                 if (error) {
@@ -140,7 +143,7 @@ const Posts = () => {
                 history.push('/auth')
             });
         }
-    }, [])
+    }, [history])
 
     useEffect(() => {
         if (socket) {
@@ -171,7 +174,22 @@ const Posts = () => {
         }
     }, [subCommentToSocket])
 
-
+    
+    useEffect(() => {
+        if (socket) {
+            socket.on('received postDeleted', async ({ creatorPostDeleted ,indexPostDeleted ,idPostDeleted ,dataDeleted }) => {
+                if(posts && posts[indexPostDeleted]._id === idPostDeleted) {
+                    // console.log('nhan deleted')
+                    await dispatch({type: DELETE, payload: idPostDeleted})
+                    await dispatch({type: DELETED_POST, payload: Number(indexPostDeleted)})
+                    await setPostDeleted({creatorPostDeleted, dataDeleted})
+                }
+            })
+            return () => {
+                socket.off('received postDeleted')
+            }
+        }
+    }, [dispatch, posts ])
 
     return (
         isLoading ? <div style={{ display: 'flex', padding: '5px', flexDirection: 'column', width: '100%', placeItems: 'center' }}><CircularProgress style={{ color: 'white' }} /></div>
@@ -182,6 +200,7 @@ const Posts = () => {
                         <>
                             <CustomizedSnackbar getRefs={getRefs} socket={socket} />
                             <CustomizedNotification socket={socket} />
+                            {postDeleted && <CustomizedDeletedPost postDeleted={postDeleted} setPostDeleted={setPostDeleted} />}
                             <Grid container justifyContent="center" alignItems="stretch" spacing={3}>
                                 <Grid item sm={12} md={3}>
                                     <Profile user={user} socket={socket} handleLogout={handleLogout} />
