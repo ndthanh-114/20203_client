@@ -3,7 +3,7 @@ import { Container, Grow, Grid, CircularProgress } from '@material-ui/core'
 import useStyles from './styles'
 import { Redirect } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { LOGOUT,DELETE, DELETED_POST } from '../../constants/actionTypes'
+import { LOGOUT,DELETE, DELETE_NOTIFICATION } from '../../constants/actionTypes'
 import { useHistory } from 'react-router-dom'
 import { useLocation } from 'react-router'
 import { getPosts } from '../../actions/posts'
@@ -27,7 +27,7 @@ const Posts = () => {
     const dispatch = useDispatch()
     const history = useHistory()
     const location = useLocation()
-    const { posts, childClicked, isLoading, deletedPost } = useSelector((state) => state.posts)
+    const { posts, childClicked, isLoading, deletedPost, notifications } = useSelector((state) => state.posts)
     const [elRefs, setElRefs] = useState([]);
     const [changeRefs, setChangeRefs] = useState(-2);
     const [commentToSocket, setCommentToSocket] = useState({
@@ -54,8 +54,8 @@ const Posts = () => {
 
     const [postDeleted, setPostDeleted] = useState({})
 
-    const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
-    // const ENDPOINT = 'http://localhost:5000/'
+    // const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
+    const ENDPOINT = 'http://localhost:5000/'
 
 
     const handleLogout = () => {
@@ -70,12 +70,15 @@ const Posts = () => {
 
     const getRefs = async () => {
         if (changeRefs + 1 === posts.length) {
+            // console.log("add ref")
             await setElRefs((refs) => Array(posts.length).fill().map((_, i) => i === 0 ? createRef() : refs[i - 1]));
         }
         else if(changeRefs - 1 === posts.length && deletedPost !== -1) {
+            // console.log("delete ref")
             await setElRefs((refs) => Array(posts.length).fill().map((_, i) => i === deletedPost ? null : refs[i]));
         }
-        else {
+        else if(changeRefs !== posts.length ) 
+        {
             // console.log('refs all')
             await setElRefs((refs) => Array(posts.length).fill().map((_, i) => createRef()));
         }
@@ -114,6 +117,8 @@ const Posts = () => {
                     username: user?.result?.email
                 });
             })
+        }else{
+            history.push('/auth')
         }
         return () => {
             // dispatch({type: CLEAN_NOTIFICATION})
@@ -180,8 +185,14 @@ const Posts = () => {
             socket.on('received postDeleted', async ({ creatorPostDeleted ,indexPostDeleted ,idPostDeleted ,dataDeleted }) => {
                 if(posts && posts[indexPostDeleted]._id === idPostDeleted) {
                     // console.log('nhan deleted')
-                    await dispatch({type: DELETE, payload: idPostDeleted})
-                    await dispatch({type: DELETED_POST, payload: Number(indexPostDeleted)})
+                    // await dispatch({type: DELETE, payload: idPostDeleted})
+                    // await dispatch({type: DELETED_POST, payload: Number(indexPostDeleted)})
+                    await dispatch({ type: DELETE, payload: {id: idPostDeleted, indexPost: indexPostDeleted }})
+                    notifications.forEach((noti, i) => {
+                        if(noti.indexPost === indexPostDeleted) {
+                            dispatch({ type: DELETE_NOTIFICATION, payload: i })
+                        }
+                    })
                     await setPostDeleted({creatorPostDeleted, dataDeleted})
                 }
             })
@@ -189,7 +200,7 @@ const Posts = () => {
                 socket.off('received postDeleted')
             }
         }
-    }, [dispatch, posts ])
+    }, [dispatch, posts, notifications ])
 
     return (
         isLoading ? <div style={{ display: 'flex', padding: '5px', flexDirection: 'column', width: '100%', placeItems: 'center' }}><CircularProgress style={{ color: 'white' }} /></div>

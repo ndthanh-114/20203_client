@@ -17,7 +17,7 @@ const OneRootComment = ({ post, indexPost, c, setNewSubCmtToSocket, setSubCommen
             if (String(subCommentToSocket.idPost) === String(post?._id)
                 && String(subCommentToSocket.prevCommentId) === String(c._id) && String(subCommentToSocket.index) === String(i)) {
                 const { data, prevCommentId, totalSubcomment, _id, ...info } = subCommentToSocket;
-                console.log(info)
+                // console.log(info)
                 if (subComments || subComments === []) {
                     let haveComment = false;
                     for (let i = 0; i < subComments.length; i++) {

@@ -16,6 +16,7 @@ export const IS_COMMENT = 'IS_COMMENT'
 export const SHOW_COMMENT = 'SHOW_COMMENT'
 export const UPDATE_CMT = 'UPDATE_CMT'
 export const DELETED_POST = 'DELETE_POST'
+export const UPDATE_LENG_CMT = 'UPDATE_LENG_CMT'
 
 
 

@@ -6,3 +6,16 @@
     background-color: whitesmoke !important;
     border-radius: 25px;
 }
+.main-create-form .react-emoji {
+    border-radius: 25px;
+    height: 130px !important;
+}
+.main-create-form .react-emoji .react-input-emoji--container {
+    height: 100% !important;
+    background-color: transparent;
+    border: none;
+}
+.main-create-form .react-emoji  .react-input-emoji--button {
+    align-self: flex-end;
+    margin-bottom: 5px;
+}

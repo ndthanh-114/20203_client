@@ -1,15 +1,17 @@
 import {makeStyles } from '@material-ui/core/styles'
 
 export default makeStyles(theme => ({
+    
     form: {
         padding: '5px',
         display: 'flex', 
         flexDirection: "column",
         alignItems: "center",
+        
         position: 'relative',
     },
     header: {
-        maxWidth: '100%',
+        width: '100%',
         fontSize: 'medium',
         fontWeight: 'bold',
         padding: '5px 0',
@@ -21,7 +23,8 @@ export default makeStyles(theme => ({
         padding: '5px',
         display: 'flex',
         flexDirection: 'column',
-        
+        width: '100%',
+
     },
     top: {
         display: 'flex',
@@ -89,10 +92,17 @@ export default makeStyles(theme => ({
         backgroundColor: theme.palette.background.paper,
         borderRadius: '10px',
         boxShadow: theme.shadows[5],
+        width: '50%'
         
     },
     filebase: {
         color: 'blue',
+        display: 'none',
+    },
+    form__bottom: {
+        display: 'flex', 
+        marginTop: '5px', 
+        justifyContent: 'space-between',
+       
     }
-    
 }))

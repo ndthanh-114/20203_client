@@ -5,15 +5,19 @@ import FileBase from 'react-file-base64'
 // import ImageIcon from '@material-ui/icons/Image';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import HighlightOffTwoToneIcon from '@material-ui/icons/HighlightOffTwoTone';
+// import Publish from '@material-ui/icons/Publish';
+
 import { useDispatch } from 'react-redux'
 import { createPost } from '../../../../actions/posts'
 // import ReactEmoji from 'react-emoji'
+import InputEmoji from "react-input-emoji";
+
 
 const MAX_SIZE = 1 * 1000;
 let totalSize = 0;
 
 const Form = ({ user, setOpen, socket }) => {
-
+    const [content, setContent] = useState('')
     const [postData, setPostData] = useState({
         message: '',
         creator: user?.result?.email,
@@ -51,13 +55,18 @@ const Form = ({ user, setOpen, socket }) => {
         e.preventDefault()
         // console.log(postData)
         // console.log(Content());
+        // console.log(content)
+        await setPostData({ ...postData, message: content })
+        
+    
         try {
             setIsLoading(true)
-            const res = await dispatch(createPost(postData))
+            const res = await dispatch(createPost(postData, content))
             setOpen(false)
 
             setIsLoading(false)
             const postId = res?._id;
+            setContent('')
             socket.emit('newPost', { postId }, () => {
 
             })
@@ -65,6 +74,7 @@ const Form = ({ user, setOpen, socket }) => {
 
         } catch (error) {
             setOpen(false)
+            setContent('')
             setIsLoading(false)
             console.log(error);
         }
@@ -95,8 +105,8 @@ const Form = ({ user, setOpen, socket }) => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className={classes.main}>
-                                    <textarea
+                                <div className="main-create-form">
+                                    {/* <textarea
                                         onChange={(e) => setPostData({ ...postData, message: e.target.value })}
                                         value={postData.message}
                                         autoFocus
@@ -105,10 +115,17 @@ const Form = ({ user, setOpen, socket }) => {
                                         cols="50"
                                         className={classes.input_text}
                                         placeholder="Bạn đang nghĩ gì thế?"
+                                    /> */}
+                                    <InputEmoji
+                                        style={{ backgroundColor: 'whitesmoke' }}
+                                        value={content}
+                                        onChange={setContent}
+                                        name="content"
+                                        placeholder="Bạn đang nghĩ gì thế?"
+
                                     />
-                                    
                                     <div className={classes.image} >
-                                        <div style={{ display: 'flex', overflow: 'auto', width: '485px' }}>
+                                        <div style={{ display: 'flex', overflow: 'auto', width: '100%' }}>
                                             {/* <PrevImage /> */}
                                             {
                                                 postData.selectedFile.map(file => {
@@ -136,15 +153,16 @@ const Form = ({ user, setOpen, socket }) => {
                                         </div>
                                         {
                                             !postData.selectedFile.length &&
-                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <div className={classes.form__bottom}>
                                                 <div style={{ fontSize: 'medium' }}>Thêm tệp</div>
+                                                
                                                 <FileBase
                                                     className={classes.filebase}
                                                     name="selectedFile"
                                                     type="file"
                                                     multiple={true}
+                                                 
                                                     onDone={handleFile}
-
                                                 />
                                             </div>
                                         }
@@ -153,7 +171,7 @@ const Form = ({ user, setOpen, socket }) => {
                             </div>
                             {isMaxSize && <div style={{ color: 'red', fontStyle: 'italic', margin: '5px' }}>Vượt quá kích thước cho phép</div>}
 
-                            <Button disabled={(postData.message.trim() === '' && postData.selectedFile.length === 0) || isMaxSize} type="submit" fullWidth variant="contained" color="primary" className={classes.submit}>
+                            <Button disabled={(content.trim() === '' && postData.selectedFile.length === 0) || isMaxSize} type="submit" fullWidth variant="contained" color="primary" className={classes.submit}>
                                 Đăng
                             </Button>
 
