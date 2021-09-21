@@ -34,7 +34,8 @@ export default makeStyles(theme => ({
         padding: '5px 10px',
         borderRadius: '15px',
         backgroundColor: 'whitesmoke',
-        wordBreak: 'break-all',
+        wordWrap: 'break-word',
+
         // wordWrap: 'break-word',
     },
     emoji: {

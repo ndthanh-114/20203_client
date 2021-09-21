@@ -14,7 +14,7 @@ import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import Comment from './Comment/Comment'
 import { fetchPostComment } from '../../../api/index'
 import ReactEmoji from 'react-emoji'
-import { IS_COMMENT, CHILD_CLICKED, UPDATE, UPDATE_CMT, SHOW_COMMENT, DELETE_NOTIFICATION } from '../../../constants/actionTypes'
+import { IS_COMMENT, CHILD_CLICKED, UPDATE, SHOW_COMMENT, DELETE_NOTIFICATION } from '../../../constants/actionTypes'
 import classNames from 'classnames'
 
 
@@ -30,11 +30,11 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket, setComme
     const user = JSON.parse(localStorage.getItem('profile'))
     const [lengthImage, setLengthImage] = useState(0)
     const [currentImage, setCurrentImage] = useState(0)
-    const { newPost, isComments, showComment, childClicked, updateNumberCmt, deletedPost, notifications } = useSelector(state => state.posts)
+    const { newPost, isComments, showComment, childClicked, notifications } = useSelector(state => state.posts)
     const [comments, setComments] = useState(post?.comments || []);
     const [totalSubcomments, setTotalSubcomments] = useState([])
     const [showSubCmt, setShowSubCmt] = useState(null)
-    const [lengCmt, setLengCmt] = useState(Number(post.lengCmt) || 0);
+    // const [lengCmt, setLengCmt] = useState(Number(post.lengCmt) || 0);
     // const { isComments } = useSelector((state) => state.posts)
 
     useEffect(() => {
@@ -44,25 +44,26 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket, setComme
             dispatch({ type: CHILD_CLICKED, payload: -1 })
         }
     }, [childClicked, dispatch, refProp, selected])
-    useEffect(() => {
-        const updateComment = async () => {
-            await setLengCmt(lengCmt + 1);
-            let updateCmt = lengCmt + 1;
-            // console.log("lengCmt ", lengCmt)
-            let updatePost = { ...post, lengCmt: updateCmt }
-            // console.log("updateCmt ", updatePost)
-            await dispatch({ type: UPDATE, payload: updatePost })
-            await dispatch({ type: UPDATE_CMT, payload: '' })
-        }
-        if (updateNumberCmt === post._id) {
-            updateComment()
-        }
-    }, [updateNumberCmt, dispatch])
 
-    useEffect(() => {
-        // console.log("updateCmt ", post.lengCmt)
-        setLengCmt(Number(post.lengCmt) || 0)
-    }, [deletedPost])
+    // useEffect(() => {
+    //     const updateComment = async () => {
+    //         await setLengCmt(lengCmt + 1);
+    //         let updateCmt = lengCmt + 1;
+    //         // console.log("lengCmt ", lengCmt)
+    //         let updatePost = { ...post, lengCmt: updateCmt }
+    //         // console.log("updateCmt ", updatePost)
+    //         await dispatch({ type: UPDATE, payload: updatePost })
+    //         await dispatch({ type: UPDATE_CMT, payload: '' })
+    //     }
+    //     if (updateNumberCmt === post._id) {
+    //         updateComment()
+    //     }
+    // }, [updateNumberCmt, dispatch])
+
+    // useEffect(() => {
+    //     // console.log("updateCmt ", post.lengCmt)
+    //     setLengCmt(Number(post.lengCmt) || 0)
+    // }, [deletedPost])
 
     useEffect(() => {
 
@@ -88,6 +89,9 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket, setComme
                 setComments(tmp)
                 // console.log(comments)
                 post.comments.push({ data, prevCommentId, totalSubcomment, _id })
+                if (!post.lengCmt)
+                    post.lengCmt = 0;
+                post.lengCmt += 1;
                 let tmp2 = []
                 post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
                 setTotalSubcomments([...tmp2])
@@ -107,14 +111,17 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket, setComme
                 let tmp2 = []
 
                 post?.comments.forEach(el => tmp2.push(el.totalSubcomment))
+                if (!post.lengCmt)
+                    post.lengCmt = 0;
+                post.lengCmt += 1;
+
                 totalSubcomments.push(...tmp2)
 
                 if (totalSubcomments || totalSubcomments === []) {
                     let count = post?.comments[Number(i)]?.totalSubcomment + 1;
                     totalSubcomments.splice(Number(i), 1, count);
                     // console.log("opened", opened)
-                    if(opened)
-                    {
+                    if (opened) {
                         post.comments[Number(i)].totalSubcomment = totalSubcomments[Number(i)];
                     }
                     totalSubcomments.splice(tmp2.length)
@@ -205,7 +212,7 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket, setComme
     const handleLikePost = async () => {
         try {
             setIsUpdate(true)
-            const data = await dispatch(likePost(post._id))
+            const data = await dispatch(likePost(post._id, post.lengCmt))
             const isLike = data.likes.find(like => like === user?.result?.email)
             // alert(isLike)
             if (socket) {
@@ -313,7 +320,7 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket, setComme
 
                                 <div className={classes.post__option} onClick={handleShowComment}>
                                     <ChatBubbleOutlineOutlinedIcon />
-                                    <p style={{ marginLeft: '10px' }}> {lengCmt} Bình luận</p>
+                                    <p style={{ marginLeft: '10px' }}> {post.lengCmt} Bình luận</p>
                                 </div>
                                 <div className={classes.post__option}>
                                     <ShareOutlinedIcon />
@@ -329,7 +336,7 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket, setComme
                                         subCommentToSocket={subCommentToSocket}
                                         setNewSubCmtToSocket={setNewSubCmtToSocket}
                                         post={post}
-                                        setLengCmt={setLengCmt}
+                                        
                                         setIsLoadingComment={setIsLoadingComment}
                                         opened={opened}
                                         isLoadingComment={isLoadingComment}

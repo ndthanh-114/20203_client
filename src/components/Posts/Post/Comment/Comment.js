@@ -9,7 +9,7 @@ import InputEmoji from "react-input-emoji";
 
 //comments: data, prevId, _id, totalSubComment
 
-const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, showSubCmt, setNewSubCmtToSocket, handleShowComment, indexPost, socket, handleDelete, comments, setComments, totalSubcomments, setTotalSubcomments, opened, isLoadingComment, setIsLoadingComment }) => {
+const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, showSubCmt, setNewSubCmtToSocket, handleShowComment, indexPost, socket, handleDelete, comments, setComments, totalSubcomments, setTotalSubcomments, opened, isLoadingComment, setIsLoadingComment }) => {
     const user = JSON.parse(localStorage.getItem('profile'));
     const [comment, setComment] = useState('');
     let [openedSubCmt, setOpenedSubCmt] = useState(false)
@@ -58,10 +58,10 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, setLengCmt, 
         let rs = 0;
         if (totalSubcomments?.length) totalSubcomments.forEach(el => rs += el)
         else {
-            setLengCmt(comments.length)
+            // setLengCmt(comments.length)
             return 0;
         }
-        setLengCmt(comments.length + rs);
+        // setLengCmt(comments.length + rs);
 
         return rs;
     }

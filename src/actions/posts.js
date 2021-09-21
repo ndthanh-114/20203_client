@@ -23,6 +23,7 @@ export const createPost = (newPost, content) => async (dispatch) => {
     try {
         newPost = {...newPost, message: content}
         const { data } = await api.createPost(newPost);
+        data.lengCmt = 0;
         dispatch({ type: CREATE, payload: data })
         // console.log(data);
         return data;
@@ -46,9 +47,10 @@ export const deletePost = (id, indexPost) => async (dispatch) => {
     }
 }
 
-export const likePost = (id) => async (dispatch) => {
+export const likePost = (id, postLeng) => async (dispatch) => {
     try {
         const { data } = await api.likePost(id);
+        data.lengCmt = postLeng;
         dispatch({ type: UPDATE, payload: data })
         return data;
     } catch (error) {
