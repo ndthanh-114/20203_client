@@ -54,8 +54,8 @@ const Posts = () => {
 
     const [postDeleted, setPostDeleted] = useState({})
 
-    // const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
-    const ENDPOINT = 'http://localhost:5000/'
+    const ENDPOINT = 'https://thuc-tap-20203-1.herokuapp.com/'
+    // const ENDPOINT = 'http://localhost:5000/'
 
 
     const handleLogout = () => {
