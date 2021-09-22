@@ -124,6 +124,10 @@ const Post = ({ post, socket, newSubCmtToSocket, setSubCommentToSocket, setComme
             notifications.forEach((noti, i) => {
                 if (noti.idPost === post._id) {
                     dispatch({ type: DELETE_NOTIFICATION, payload: i })
+                }else {
+                    if(indexPost < noti.indexPost){
+                        noti.indexPost -= 1;
+                    }
                 }
             })
             await dispatch(deletePost(post._id, indexPost));
