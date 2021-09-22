@@ -65,7 +65,9 @@ const Posts = () => {
     useEffect(() => {
         // console.log('useEffect posts')
 
-        dispatch(getPosts())
+        
+            dispatch(getPosts(history))
+        
     }, [dispatch])
 
     const getRefs = async () => {
@@ -74,8 +76,10 @@ const Posts = () => {
             await setElRefs((refs) => Array(posts.length).fill().map((_, i) => i === 0 ? createRef() : refs[i - 1]));
         }
         else if(changeRefs - 1 === posts.length && deletedPost !== -1) {
-            // console.log("delete ref")
-            await setElRefs((refs) => Array(posts.length).fill().map((_, i) => i === deletedPost ? null : refs[i]));
+            console.log("delete ref")
+            await setElRefs((refs) => Array(posts.length + 1).fill().map((_, i) => i === deletedPost ? null : refs[i])
+                                        .filter((_, i) => i !== deletedPost));
+            
         }
         else if(changeRefs !== posts.length ) 
         {
@@ -187,12 +191,16 @@ const Posts = () => {
                     // console.log('nhan deleted')
                     // await dispatch({type: DELETE, payload: idPostDeleted})
                     // await dispatch({type: DELETED_POST, payload: Number(indexPostDeleted)})
-                    await dispatch({ type: DELETE, payload: {id: idPostDeleted, indexPost: indexPostDeleted }})
                     notifications.forEach((noti, i) => {
-                        if(noti.indexPost === indexPostDeleted) {
+                        if(noti.idPost === idPostDeleted) {
                             dispatch({ type: DELETE_NOTIFICATION, payload: i })
+                        }else {
+                            if(indexPostDeleted < noti.indexPost){
+                                noti.indexPost -= 1;
+                            }
                         }
                     })
+                    await dispatch({ type: DELETE, payload: {id: idPostDeleted, indexPost: indexPostDeleted }})
                     await setPostDeleted({creatorPostDeleted, dataDeleted})
                 }
             })

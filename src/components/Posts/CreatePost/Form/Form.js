@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux'
 import { createPost } from '../../../../actions/posts'
 // import ReactEmoji from 'react-emoji'
 import InputEmoji from "react-input-emoji";
+import { useSelector } from 'react-redux'
 
 
 const MAX_SIZE = 1 * 1000;
@@ -18,6 +19,8 @@ let totalSize = 0;
 
 const Form = ({ user, setOpen, socket }) => {
     const [content, setContent] = useState('')
+    const { notifications } = useSelector((state) => state.posts)
+
     const [postData, setPostData] = useState({
         message: '',
         creator: user?.result?.email,
@@ -63,7 +66,9 @@ const Form = ({ user, setOpen, socket }) => {
             setIsLoading(true)
             const res = await dispatch(createPost(postData, content))
             setOpen(false)
-
+            notifications.forEach((noti, i) => {
+                        noti.indexPost += 1;
+            })
             setIsLoading(false)
             const postId = res?._id;
             setContent('')

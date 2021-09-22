@@ -9,7 +9,7 @@ import InputEmoji from "react-input-emoji";
 
 //comments: data, prevId, _id, totalSubComment
 
-const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, showSubCmt, setNewSubCmtToSocket, handleShowComment, indexPost, socket, handleDelete, comments, setComments, totalSubcomments, setTotalSubcomments, opened, isLoadingComment, setIsLoadingComment }) => {
+const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, showSubCmt, setNewSubCmtToSocket, handleShowComment, indexPost, socket, handleDelete, opened, isLoadingComment, setIsLoadingComment }) => {
     const user = JSON.parse(localStorage.getItem('profile'));
     const [comment, setComment] = useState('');
     let [openedSubCmt, setOpenedSubCmt] = useState(false)
@@ -32,9 +32,9 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, showSubCmt, 
 
         tmp = Array(post?.comments.length).fill(false)
         isShowSubComments.push(...tmp)
-        tmp = []
-        post?.comments.forEach(el => tmp.push(el.totalSubcomment))
-        setTotalSubcomments([...tmp])
+        // tmp = []
+        // post?.comments.forEach(el => tmp.push(el.totalSubcomment))
+        // setTotalSubcomments([...tmp])
 
 
     }, [])
@@ -54,26 +54,12 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, showSubCmt, 
         return data;
     }
 
-    const totalSubCmt = () => {
-        let rs = 0;
-        if (totalSubcomments?.length) totalSubcomments.forEach(el => rs += el)
-        else {
-            // setLengCmt(comments.length)
-            return 0;
-        }
-        // setLengCmt(comments.length + rs);
-
-        return rs;
-    }
-
-   
-
     // use socket
     const handleComment = async (e) => {
         // e.preventDefault()
         setIsUpdate(true);
 
-        if (comment) {
+        if (comment && comment.trim() !== '') {
             const prevId = ''
             socket.emit('send comment', ({ email, idPost, data: comment, prevId, indexPost }), (error) => {
                 if (error) {
@@ -120,9 +106,6 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, showSubCmt, 
         // console.log(isShowSubComments)
     }
 
-    const handleOnEnter = () => {
-        console.log("enter", comment);
-    }
 
     return (
         <div >
@@ -130,10 +113,10 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, showSubCmt, 
 
                 {!isLoadingComment ?
                     <>
-                        <Typography variant="subtitle2">{comments.length + totalSubCmt()} lượt bình luận</Typography>
+                        
                         <div className={classes.commentsInnerContainer} >
                             {
-                                comments?.map((c, i) => (
+                                post?.comments?.map((c, i) => (
                                     <div key={i} style={{ padding: '5px 10px', display: 'flex', flexDirection: 'column', width: '95%' }}>
                                         <div style={{ display: 'flex', alignItems: "center", gap: '0 10px' }}>
                                             <Typography gutterBottom variant="subtitle2" className={classes.list__comment}>
@@ -144,7 +127,8 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, showSubCmt, 
 
                                             </Typography>
                                             {
-                                                totalSubcomments[i] <= 0 &&
+                                                // totalSubcomments[i] <= 0 &&
+                                                c?.totalSubcomment <= 0 &&
                                                 <Typography
                                                     variant='body2'
                                                     onClick={() => {
@@ -157,7 +141,7 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, showSubCmt, 
                                             }
                                         </div>
                                         {
-                                            totalSubcomments[i] > 0 &&
+                                            c?.totalSubcomment > 0 &&
                                             <Typography
                                                 variant='body2'
                                                 onClick={() => {
@@ -167,7 +151,7 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, showSubCmt, 
                                                 style={{ cursor: 'pointer', display: 'flex', padding: '0px 5px', fontSize: '0.8rem' }}
 
                                                 color="primary">
-                                                {!isShowSubComments[i] ? `${totalSubcomments[i]} lượt phản hồi` : "Thu gọn"}
+                                                {!isShowSubComments[i] ? `${c.totalSubcomment} lượt phản hồi` : "Thu gọn"}
                                             </Typography>
                                         }
                                         {
@@ -188,8 +172,8 @@ const Comment = ({ post, subCommentToSocket, setSubCommentToSocket, showSubCmt, 
                                                         isShowSubComments={isShowSubComments}
                                                         openedSubCmt={openedSubCmt}
                                                         setIsShowSubComments={setIsShowSubComments}
-                                                        setTotalSubcomments={setTotalSubcomments}
-                                                        totalSubcomments={totalSubcomments}
+                                                        // setTotalSubcomments={setTotalSubcomments}
+                                                        // totalSubcomments={totalSubcomments}
                                                         setSubCommentToSocket={setSubCommentToSocket}
                                                     /> : null
                                         }

@@ -9,7 +9,7 @@ import { NEW_POST, CREATE } from '../../constants/actionTypes';
 const CustomizedSnackbar = ({ socket, getRefs }) => {
     const classes = useStyles();
     const dispatch = useDispatch()
-    const { newPost } = useSelector(state => state.posts)
+    const { newPost, notifications } = useSelector(state => state.posts)
 
     useEffect(() => {
         if (socket) {
@@ -21,6 +21,9 @@ const CustomizedSnackbar = ({ socket, getRefs }) => {
                     // console.log(post);
                     await dispatch({ type: NEW_POST, payload: { is: true, postId: post?._id, postEmail: post?.creator } })
                     await dispatch({ type: CREATE, payload: post })
+                    notifications.forEach((noti, i) => {
+                        noti.indexPost += 1;
+                    })
                     await getRefs()
                 }
             })

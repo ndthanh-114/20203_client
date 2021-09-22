@@ -1,8 +1,9 @@
+
 import * as api from '../api/index'
 import { FETCH_ALL, COMMENT, AUTH, CREATE, DELETE, UPDATE, START_LOADING, END_LOADING } from '../constants/actionTypes'
 
 
-export const getPosts = () => async (dispatch) => {
+export const getPosts = (history) => async (dispatch) => {
     try {
         dispatch({ type: START_LOADING })
         const { data } = await api.fetchPosts();
@@ -11,10 +12,11 @@ export const getPosts = () => async (dispatch) => {
         dispatch({ type: END_LOADING })
     } catch (error) {
 
-        console.log(error.response)
+        alert(error.response.data.message)
         dispatch({ type: END_LOADING })
         localStorage.clear()
-        dispatch({type: AUTH})
+        history.push('/auth')
+
     }
 
 }
